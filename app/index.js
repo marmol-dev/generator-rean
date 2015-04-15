@@ -152,6 +152,7 @@ var MeanGenerator = yeoman.generators.Base.extend({
 		this.copy('config/init.js');
 		this.copy('config/express.js');
 		this.copy('config/passport.js');
+        this.copy('config/db.js');
 
 		// Copy project files
 		this.copy('karma.conf.js');

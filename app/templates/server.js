@@ -13,24 +13,23 @@ var init = require('./config/init')(),
  */
 
 // Bootstrap db connection
-var db = mongoose.connect(config.db, function(err) {
-	if (err) {
-		console.error(chalk.red('Could not connect to MongoDB!'));
-		console.log(chalk.red(err));
-	}
-});
+var db = require('./config/db').start();
 
-// Init the express application
-var app = require('./config/express')(db);
+db.then(function () {
+        console.log(chalk.black('RethinkDB running on port ' + config.db.port));
+        // Init the express application
+        var app = require('./config/express')(db);
 
-// Bootstrap passport config
-require('./config/passport')();
+        // Bootstrap passport config
+        require('./config/passport')();
 
-// Start the app by listening on <port>
-app.listen(config.port);
-
-// Expose app
-exports = module.exports = app;
+        // Start the app by listening on <port>
+        app.listen(config.port);
+    })
+    .error(function (err) {
+        console.error(chalk.red('Could not connect to RethinkDB!'));
+        console.log(chalk.red(err));
+    });
 
 // Logging initialization
 console.log('REAN application started on port ' + config.port);

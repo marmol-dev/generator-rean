@@ -4,11 +4,11 @@ MAINTAINER Matthias Luebken, matthias@catalyst-zero.com
 
 WORKDIR /home/mean
 
-# Install Mean.JS Prerequisites
+# Install REAN Prerequisites
 RUN npm install -g grunt-cli
 RUN npm install -g bower
 
-# Install Mean.JS packages
+# Install REAN packages
 ADD package.json /home/mean/package.json
 RUN npm install
 

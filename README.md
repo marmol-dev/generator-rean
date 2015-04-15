@@ -1,16 +1,16 @@
-[![MEAN.JS Logo](http://meanjs.org/img/logo-small.png)](http://meanjs.org/)
+[![REAN Logo](http://rean.org/img/logo-small.png)](http://rean.org/)
 
-[![Build Status](https://travis-ci.org/meanjs/generator-meanjs.svg?branch=master)](https://travis-ci.org/meanjs/generator-meanjs)
-[![Dependencies Status](https://david-dm.org/meanjs/generator-meanjs.svg)](https://david-dm.org/meanjs/generator-meanjs)
+[![Build Status](https://travis-ci.org/rean/generator-rean.svg?branch=master)](https://travis-ci.org/rean/generator-rean)
+[![Dependencies Status](https://david-dm.org/rean/generator-rean.svg)](https://david-dm.org/rean/generator-rean)
 
-MEAN.JS is a full-stack JavaScript open-source solution, which provides a solid starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. The idea is to solve the common issues with connecting those frameworks, build a robust framework to support daily development needs, and help developers use better practices while working with popular JavaScript components.
+REAN is a full-stack JavaScript open-source solution, which provides a solid starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. The idea is to solve the common issues with connecting those frameworks, build a robust framework to support daily development needs, and help developers use better practices while working with popular JavaScript components.
 ## Overview
 
 One of the most frequently asked features from MEAN users is a way to scaffold their applications. As we looked for a way to help the community build and deploy production level MEAN applications, we decided to go with a [Yeoman](http://yeoman.io/index.html) generator. Yeoman generators provides a powerful, easy to maintain, and open solution for scaffolding applications.
 
 
 
-So, we set out to work on the features we thought every developer needs, and we are proud to present the official MEAN.JS Yeoman generator. It includes a set of simple tools you can use to make your MEAN application development easier and way more fun.
+So, we set out to work on the features we thought every developer needs, and we are proud to present the official REAN Yeoman generator. It includes a set of simple tools you can use to make your MEAN application development easier and way more fun.
 
 
 
@@ -28,45 +28,45 @@ $ npm install -g yo
 
 
 
-Once you have *yo* installed, you will need to install the MEAN.JS generator as well:
+Once you have *yo* installed, you will need to install the REAN generator as well:
 
 
 ```
-$ npm install -g generator-meanjs
+$ npm install -g generator-rean
 ```
 
-You are now ready to get started with the MEAN.JS generator. The generator will help you create a MEAN.JS application, a CRUD module, Angular Module, and other AngularJS/Express entities.
+You are now ready to get started with the REAN generator. The generator will help you create a REAN application, a CRUD module, Angular Module, and other AngularJS/Express entities.
 
 ## Generators
 
 Available generators:
 
-* [meanjs](#application-generator)
-* [meanjs:crud-module](#crud-module-sub-generator)
-* [meanjs:angular-module](#angularjs-module-sub-generator)
-* [meanjs:angular-route](#angularjs-route-sub-generator)
-* [meanjs:angular-controller](#angularjs-controller-sub-generator)
-* [meanjs:angular-view](#angularjs-view-sub-generator)
-* [meanjs:angular-service](#angularjs-service-sub-generator)
-* [meanjs:angular-directive](#angularjs-directive-sub-generator)
-* [meanjs:angular-filter](#angularjs-filter-sub-generator)
-* [meanjs:angular-config](#angularjs-config-sub-generator)
-* [meanjs:angular-test](#angularjs-test-sub-generator)
-* [meanjs:express-model](#express-model-sub-generator)
-* [meanjs:express-controller](#express-controller-sub-generator)
-* [meanjs:express-route](#express-routes-sub-generator)
-* [meanjs:express-test](#express-test-sub-generator)
+* [rean](#application-generator)
+* [rean:crud-module](#crud-module-sub-generator)
+* [rean:angular-module](#angularjs-module-sub-generator)
+* [rean:angular-route](#angularjs-route-sub-generator)
+* [rean:angular-controller](#angularjs-controller-sub-generator)
+* [rean:angular-view](#angularjs-view-sub-generator)
+* [rean:angular-service](#angularjs-service-sub-generator)
+* [rean:angular-directive](#angularjs-directive-sub-generator)
+* [rean:angular-filter](#angularjs-filter-sub-generator)
+* [rean:angular-config](#angularjs-config-sub-generator)
+* [rean:angular-test](#angularjs-test-sub-generator)
+* [rean:express-model](#express-model-sub-generator)
+* [rean:express-controller](#express-controller-sub-generator)
+* [rean:express-route](#express-routes-sub-generator)
+* [rean:express-test](#express-test-sub-generator)
 
 **Note: Generators are to be run from the root directory of your app.**
 
 
 ## Application Generator
 
-The application generator will help you create a fresh copy of a MEAN.JS application in your working folder. To create your MEAN application, navigate to a new project folder, and then use *yo* to generate your application:
+The application generator will help you create a fresh copy of a REAN application in your working folder. To create your MEAN application, navigate to a new project folder, and then use *yo* to generate your application:
 
 
 ```
-$ yo meanjs
+$ yo rean
 ```
 
 The generator will ask you a few questions about your new application and will generate it for you. When the installation process is over, you will be able to use grunt to run your new MEAN application:
@@ -86,7 +86,7 @@ The CRUD module sub-generator will help you create a new CRUD module, similar to
 
 
 ```
-$ yo meanjs:crud-module <module-name>
+$ yo rean:crud-module <module-name>
 ```
 
 This will create both AngularJS and Express files supporting full CRUD functionality, and add the Karma and Mocha tests.
@@ -102,7 +102,7 @@ Another redundant task is creating a new AngularJS module structure. For this pu
 
 
 ```
-$ yo meanjs:angular-module <module-name>
+$ yo rean:angular-module <module-name>
 ```
 
 The sub-generator will ask for more information about your folder structure, and will create the empty new AngularJS module. Now, to fill that new module with your business logic, we provided you with several AngularJS entities sub-generators.
@@ -116,7 +116,7 @@ To construct your module you will often need to create a new route. The AngularJ
 
 
 ```
-$ yo meanjs:angular-route <route-name>
+$ yo rean:angular-route <route-name>
 ```
 
 The sub-generator will ask for more information about your controller, view and routing URL, and will generate the appropriate files for you.
@@ -129,7 +129,7 @@ The AngularJS Controller sub-generator will create a new AngularJS controller in
 
 
 ```
-$ yo meanjs:angular-controller <controller-name>
+$ yo rean:angular-controller <controller-name>
 ```
 
 The sub-generator will ask you for the module name under which you would like to create your new controller, and will create a new AngularJS controller file in that module **controllers** folder and a test file in the **tests** folder.
@@ -145,7 +145,7 @@ Once you have your controller file ready, you may want to add a view that makes 
 
 
 ```
-$ yo meanjs:angular-view <view-name>
+$ yo rean:angular-view <view-name>
 ```
 
 The sub-generator will ask you for the module name under which you would like to create your new view, and some additional routing information. It will then create a new view file in that module's **views** folder and add a routing state to the module **routes.js** file. If it can’t find the module routes file it will create one for you.
@@ -158,7 +158,7 @@ The AngularJS service sub-generator will create a new AngularJS service in the s
 
 
 ```
-$ yo meanjs:angular-service <service-name>
+$ yo rean:angular-service <service-name>
 ```
 
 The sub-generator will ask you for the module name under which you would like to create your new service, and will create a new AngularJS service file in that module's **services** folder.
@@ -171,7 +171,7 @@ The AngularJS directive sub-generator will create a new AngularJS directive in t
 
 
 ```
-$ yo meanjs:angular-directive <directive-name>
+$ yo rean:angular-directive <directive-name>
 ```
 
 The sub-generator will ask you for the module name under which you would like to create your new directive, and will create a new AngularJS directive file in that module's **directives** folder.
@@ -184,7 +184,7 @@ The AngularJS filter sub-generator will create a new AngularJS filter in a speci
 
 
 ```
-$ yo meanjs:angular-filter <filter-name>
+$ yo rean:angular-filter <filter-name>
 ```
 
 The sub-generator will ask you for the module name under which you would like to create your new filter, and will create a new AngularJS filter file in that module **filters** folder.
@@ -197,7 +197,7 @@ The AngularJS config sub-generator will create a new AngularJS config section in
 
 
 ```
-$ yo meanjs:angular-config <config-name>
+$ yo rean:angular-config <config-name>
 ```
 
 The sub-generator will ask you for the module name under which you would like to create your new config, and will create a new AngularJS config file in that module's **config** folder.
@@ -210,7 +210,7 @@ Your MEAN application comes pre-bundled with the Karma test runner and Jasmine t
 
 
 ```
-$ yo meanjs:angular-test <controller-name>
+$ yo rean:angular-test <controller-name>
 ```
 
 This will create a test file for your controller, and if the sub-generator doesn’t find the specified controller file, it will create one for you.
@@ -226,7 +226,7 @@ Often you will find the need to just create a single Express model. The Express 
 
 
 ```
-$ yo meanjs:express-model <model-name>
+$ yo rean:express-model <model-name>
 ```
 
 This will create a new empty model in the **app/models** folder and a test file in the **app/tests** folder.
@@ -242,7 +242,7 @@ Another recurring task is creating an empty Express controller. The Express cont
 
 
 ```
-$ yo meanjs:express-controller <controller-name>
+$ yo rean:express-controller <controller-name>
 ```
 
 This will create a new empty controller in the **app/controllers** folder.
@@ -255,7 +255,7 @@ To make HTTP requests to your controller methods you will need to use a routing 
 
 
 ```
-$ yo meanjs:express-route <route-name>
+$ yo rean:express-route <route-name>
 ```
 
 This will create a new empty route file in the **app/routes** folder.
@@ -267,7 +267,7 @@ Your MEAN application comes pre-bundled with the Mocha testing framework. To tes
 
 
 ```
-$ yo meanjs:express-test <model-name>
+$ yo rean:express-test <model-name>
 ```
 
 This will create a test file for your Express model, and if the sub-generator doesn’t find the specified model, it will create one for you.

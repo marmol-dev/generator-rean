@@ -14,7 +14,7 @@ angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralNam
 
 			// Redirect after save
 			<%= camelizedSingularName %>.$save(function(response) {
-				$location.path('<%= slugifiedPluralName %>/' + response._id);
+				$location.path('<%= slugifiedPluralName %>/' + response.id);
 
 				// Clear form fields
 				$scope.name = '';
@@ -45,7 +45,7 @@ angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralNam
 			var <%= camelizedSingularName %> = $scope.<%= camelizedSingularName %>;
 
 			<%= camelizedSingularName %>.$update(function() {
-				$location.path('<%= slugifiedPluralName %>/' + <%= camelizedSingularName %>._id);
+				$location.path('<%= slugifiedPluralName %>/' + <%= camelizedSingularName %>.id);
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});

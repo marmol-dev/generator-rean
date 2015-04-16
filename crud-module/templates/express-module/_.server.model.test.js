@@ -56,8 +56,8 @@ describe('<%= humanizedSingularName %> Model Unit Tests:', function() {
 	});
 
 	afterEach(function(done) {
-		<%= classifiedSingularName %>.remove().exec();
-		User.remove().exec();
+		<%= classifiedSingularName %>.delete().run();
+		User.delete().run();
 
 		done();
 	});

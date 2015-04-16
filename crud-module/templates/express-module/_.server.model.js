@@ -3,27 +3,29 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+var config = require('../../config/config'),
+    thinky = require('thinky')(config.db),
+    r = thinky.r,
+    type = thinky.type,
+    User = require('./user.server.model');
 
 /**
  * <%= humanizedSingularName %> Schema
  */
-var <%= classifiedSingularName %>Schema = new Schema({
-	name: {
-		type: String,
-		default: '',
-		required: 'Please fill <%= humanizedSingularName %> name',
-		trim: true
-	},
-	created: {
-		type: Date,
-		default: Date.now
-	},
-	user: {
-		type: Schema.ObjectId,
-		ref: 'User'
-	}
+var <%= classifiedSingularName %> = thinky.createModel('<%= camelizedPluralName %>',{
+    created: type.date().optional().default(Date.now),
+    name: type.string().required(),
+    userId: type.string().required(),
+    id: type.string()
+}, {
+    enforce_extra: 'remove'
 });
 
-mongoose.model('<%= classifiedSingularName %>', <%= classifiedSingularName %>Schema);
+<%= classifiedSingularName %>.pre('save', function(next) {
+    this.created = new Date(this.created || null);
+    next();
+});
+
+<%= classifiedSingularName %>.belongsTo(User, 'user', 'userId', 'id');
+
+module.exports = <%= classifiedSingularName %>;

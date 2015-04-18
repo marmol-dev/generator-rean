@@ -3,15 +3,17 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+var config = require('../../config/config'),
+    thinky = require('thinky')(config.db),
+    r = thinky.r,
+    type = thinky.type;
 
 /**
  * <%= classifiedModelName %> Schema
  */
-var <%= classifiedModelName %>Schema = new Schema({
+var <%= classifiedModelName %> = thinky.createModel('<%= slugifiedPluralModelName %>',{
 	// <%= classifiedModelName %> model fields
 	// ...
 });
 
-mongoose.model('<%= classifiedModelName %>', <%= classifiedModelName %>Schema);
+module.exports = <%= classifiedModelName %>;

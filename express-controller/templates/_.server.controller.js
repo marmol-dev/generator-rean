@@ -3,7 +3,9 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
+var config = require('../../config'),
+    thinky = require('thinky')(config.db),
+    r = thinky.r,
     _ = require('lodash');
 
 /**

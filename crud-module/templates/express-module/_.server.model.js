@@ -13,10 +13,8 @@ var config = require('../../config/config'),
  * <%= humanizedSingularName %> Schema
  */
 var <%= classifiedSingularName %> = thinky.createModel('<%= camelizedPluralName %>',{
-    created: type.date().optional().default(Date.now),
-    name: type.string().required(),
-    userId: type.string().required(),
-    id: type.string()
+    <% for(var key in thinkyParsedAttributes) { %>'<%= key %>': type.<%= thinkyParsedAttributes[key].join('.') %>,
+    <% } %>'id': type.string()
 }, {
     enforce_extra: 'remove'
 });

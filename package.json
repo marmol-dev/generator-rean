@@ -1,54 +1,55 @@
 {
-    "name": "generator-rean",
-    "version": "0.0.1",
-    "description": "REAN stack generator",
-    "main": "app/index.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/tomymolina/generator-rean"
-    },
-    "author": {
-        "name": "tomymolina",
-        "email": "tm07081995@gmail.com",
-        "url": "https://about.me/tomymolina"
-    },
-    "engines": {
-        "node": ">=0.10.0"
-    },
-    "scripts": {},
-    "keywords": [
-        "yeoman-generator",
-        "scaffold",
-        "framework",
-        "component",
-        "front-end",
-        "app",
-        "rean",
-        "reanjs",
-        "node",
-        "express",
-        "angular",
-        "rethinkdb",
-        "nosql"
+  "name": "generator-rean",
+  "version": "0.0.1",
+  "description": "REAN stack generator",
+  "main": "app/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomymolina/generator-rean"
+  },
+  "author": {
+    "name": "tomymolina",
+    "email": "tm07081995@gmail.com",
+    "url": "https://about.me/tomymolina"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {},
+  "keywords": [
+    "yeoman-generator",
+    "scaffold",
+    "framework",
+    "component",
+    "front-end",
+    "app",
+    "rean",
+    "reanjs",
+    "node",
+    "express",
+    "angular",
+    "rethinkdb",
+    "nosql"
   ],
-    "dependencies": {
-        "yeoman-generator": "~0.17.1",
-        "chalk": "~0.5.1",
-        "underscore.inflections": "~0.2.1",
-        "async": "~0.9.0"
-    },
-    "devDependencies": {
-        "assert": "~1.1.1",
-        "fs-extra": "~0.10.0",
-        "mocha": "~1.21.3",
-        "temp": "~0.8.0"
-    },
-    "peerDependencies": {
-        "yo": ">=1.0.0"
-    },
-    "licenses": [
-        {
-            "type": "BSD"
+  "dependencies": {
+    "async": "~0.9.0",
+    "chalk": "~0.5.1",
+    "lodash": "^3.7.0",
+    "underscore.inflections": "~0.2.1",
+    "yeoman-generator": "~0.17.1"
+  },
+  "devDependencies": {
+    "assert": "~1.1.1",
+    "fs-extra": "~0.10.0",
+    "mocha": "~1.21.3",
+    "temp": "~0.8.0"
+  },
+  "peerDependencies": {
+    "yo": ">=1.0.0"
+  },
+  "licenses": [
+    {
+      "type": "BSD"
     }
   ]
 }

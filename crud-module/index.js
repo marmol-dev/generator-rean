@@ -3,7 +3,8 @@ var util = require('util'),
     inflections = require('underscore.inflections'),
     yeoman = require('yeoman-generator'),
     async = require('async'),
-    parser = require('../parser');
+    paq = require('../paq'),
+    chalk = require('chalk');
 
 
 var ModuleGenerator = yeoman.generators.NamedBase.extend({
@@ -102,183 +103,25 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             done();
         }.bind(this));
     },
-    askForAttributesProperties: function () {
+    askForAttributeProperties : function(){
         var done = this.async(),
-            _this = this,
-            _ = this._;
+            _ = this._,
+            attributes = this.attributes,
+            prompt = function(){ this.prompt.apply(this, arguments); }.bind(this);
         
-        function parseFromCL(text){
-            if (typeof text !== 'string')
-                return text;
-            
-            if (_.trim(text).length === 0)
-                return false;
-            
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                var date = new Date(text);
-                if (!isNaN(date.valueOf())){
-                    return date;   
-                } else {
-                    return _.trim(text);
-                }
-            }
-        }
-
-        function askType(callback) {
-            var attribute = this.attribute; //jshint ignore:line
-            var prompts = [{
-                name: 'type',
-                type: 'list',
-                message: 'Which is the type of the attribute \"' + attribute + '\" ?',
-                choices: ['string', 'number', 'date', 'array', 'object', 'boolean']
-            }];
-
-            _this.prompt(prompts, function (props) {
-                _this.attributes[attribute].type = props.type;
-                callback();
-            });
-        }
-
-        function askRequired(callback) {
-            var attribute = this.attribute; //jshint ignore:line
-            var prompts = [{
-                name: 'required',
-                type: 'confirm',
-                message: 'Is the attribute \"' + attribute + '\" required?',
-                choices: ['string', 'number', 'date', 'array', 'object', 'boolean']
-            }];
-
-            _this.prompt(prompts, function (props) {
-                _this.attributes[attribute].required = props.required;
-                callback();
-            });
-        }
-
-        function askDefault(callback) {
-            var attribute = this.attribute; //jshint ignore:line
-
-            if (_this.attributes[attribute].required)
-                return callback();
-
-            var prompts = [{
-                name: 'default',
-                message: 'What is the default value for the attribute \"' + attribute + '\"?',
-            }];
-
-            _this.prompt(prompts, function (props) {
-                _this.attributes[attribute].default = props.default;
-                callback();
-            });
-        }
-
-        function askNumber(callback) {
-            var attribute = this.attribute; //jshint ignore:line
-
-            if (_this.attributes[attribute].type !== 'number')
-                return callback();
-
-            var prompts = [
-                {
-                    name: 'min',
-                    default: '',
-                    message: 'Does this number has a minimum value? (leave empty to no min)'
-                }, {
-                    name: 'max',
-                    default: '',
-                    message: 'Does this number has a maximum value? (leave empty to no max)'
-                }, {
-                    name: 'integer',
-                    default: false,
-                    type: 'confirm',
-                    message: 'Is this number an integer?'
-                }
-            ];
-
-            _this.prompt(prompts, function (props) {
-                if (!isNaN(props.min)) {
-                    _this.attributes[attribute].min = props.integer ? parseInt(props.min) : parseFloat(props.min);
-                }
-
-                if (!isNaN(props.max)) {
-                    _this.attributes[attribute].max = props.integer ? parseInt(props.max) : parseFloat(props.max);
-                }
-
-                _this.attributes[attribute].integer = props.integer;
-                callback();
-            });
-        }
-
-        function askString(callback) {
-            var attribute = this.attribute; //jshint ignore:line
-
-            if (_this.attributes[attribute].type !== 'string')
-                return callback();
-
-            var prompts = [
-                {
-                    name: 'min',
-                    default: '',
-                    message: 'Does this string have a min length? (leave empty to no min)'
-                }, {
-                    name: 'max',
-                    default: '',
-                    message: 'Does this string have a max length? (leave empty to no max)'
-                }, {
-                    name: 'additional',
-                    type: 'checkbox',
-                    message: 'Select the additional attribute features:',
-                    choices: ['alphanum', 'email', 'lowercase', 'uppercase'],
-                    validate: function (choices) {
-                        console.log('Choices', choices);
-                        return true;
-                    }
-                }, {
-                    name: 'enum',
-                    message: 'Type the enum only allowed values (separated by commas) or leave empty to allow all:',
-                    default: ''
-                }
-            ];
-
-            _this.prompt(prompts, function (props) {
-                if (!isNaN(props.min)) {
-                    _this.attributes[attribute].min = parseInt(props.min);
-                }
-
-                if (!isNaN(props.max)) {
-                    _this.attributes[attribute].max = parseInt(props.max);
-                }
-
-                props.additional.each(function (feature) {
-                    _this.attributes[attribute][feature] = true;
-                });
-
-                if (_.trim(props.enum).length > 0) {
-                    _this.attributes[attribute].enum = _.map(props.enum.split(','), _.trim);
-                }
-
-                callback();
-            });
-        }
-
-        async.eachSeries(Object.keys(this.attributes), function (attribute, next) {
-                var context = {
-                    attribute: attribute
-                };
-                async.waterfall([
-                    askType.bind(context),
-                    askRequired.bind(context),
-                    askDefault.bind(context),
-                    askNumber.bind(context),
-                    askString.bind(context)
-                ], function (err) {
+        async.eachSeries(Object.keys(attributes),
+            function(attributeName, next) {
+                paq.askProperties( attributeName, prompt, function(attributeDefinition){
+                    attributes[attributeName] = attributeDefinition;
                     next();
                 });
-            },
-            function (err) {
+            }, function (err) {
+                if (err)
+                    console.error(err);
+
                 done();
-            });
+            }
+        );
     },
     parseThinkyAttributes: function () {
         var _this = this,
@@ -305,8 +148,8 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             //first add the type to the parsed attributeDescription
             parsedAttributeDescription.push(attributeDescription.type + '()');
             //omit the type property and parse all the other properties of the attribute description
-            var _attributes = _.omit(attributeDescription, 'type');
-            _.forIn(attributeDescription, function (value, key) {
+            var _attributeDescription = _.omit(attributeDescription, 'type');
+            _.forIn(_attributeDescription, function (value, key) {
                 if (typeof value === 'boolean') {
                     if (value) {
                         parsedAttributeDescription.push(key + '()');

@@ -1,41 +1,42 @@
 'use strict';
 
 var _ = require('lodash'),
-    async = require('async');
+    async = require('async'),
+    chalk = require('chalk');
 
-function validatePrerequisite(attributeDefinition, prerequisiteProp, prerequisiteVal) {
+function validatePrerequisite(properties, prerequisiteProp, prerequisiteVal) {
     //array notation
     if (_.isArray(prerequisiteVal) && prerequisiteVal.length === 2 && ['!', '='].lastIndexOf(prerequisiteVal[0]) > -1) {
         switch (prerequisiteVal[0]) {
         case '!':
-            return !_.isEqual(attributeDefinition[prerequisiteProp], prerequisiteVal);
+            return !_.isEqual(properties[prerequisiteProp], prerequisiteVal);
 
         case '=':
-            return _.isEqual(attributeDefinition[prerequisiteProp], prerequisiteVal);
+            return _.isEqual(properties[prerequisiteProp], prerequisiteVal);
         }
     } else { //short notation
         var startsWithExclamation = /^!/;
         if (startsWithExclamation.test(prerequisiteProp)) {
             var prop = prerequisiteProp.substr(1);
-            return !_.isEqual(attributeDefinition[prop], prerequisiteVal);
+            return !_.isEqual(properties[prop], prerequisiteVal);
         } else {
-            return _.isEqual(attributeDefinition[prerequisiteProp], prerequisiteVal);
+            return _.isEqual(properties[prerequisiteProp], prerequisiteVal);
         }
     }
 }
 
-function validatePrerequisites(attributeDefinition, prerequisites) {
-    if (!_.isObject(attributeDefinition)) {
-        throw new Error('Attribute definition should be an object. Passed ' + typeof attributeDefinition + '.');
+function validatePrerequisites(properties, prerequisites) {
+    if (!_.isObject(properties)) {
+        throw new Error('Attribute definition should be an object. Passed ' + typeof properties + '.');
     } else if (!_.isObject(prerequisites) && typeof prerequisites !== 'function') {
         throw new Error('The prerequisites should be an object or function. Passed ' + typeof prerequisites + '.');
     }
 
-    if (typeof prerequisites === 'function'){
-        return prerequisites(attributeDefinition);
+    if (typeof prerequisites === 'function') {
+        return prerequisites(properties, properties);
     } else {
         return _.all(Object.keys(prerequisites), function (prerequisiteProp) {
-            return validatePrerequisite(attributeDefinition, prerequisiteProp, prerequisites[prerequisiteProp]);
+            return validatePrerequisite(properties, prerequisiteProp, prerequisites[prerequisiteProp]);
         });
     }
 }
@@ -69,23 +70,22 @@ function singleCast(value, type) {
         }
     } else if (typeof value === 'boolean') {
         return value;
-    } else if (typeof value === 'number'){
-        switch(type) {
-            case 'number':
-                return value;
-            case 'integer':
-                console.log('number -> integer', value, parseInt(value));
-                return parseInt(value);
-            case 'string':
-                return '' + value;
-            case 'date':
-                var e = new Date(value);
-                if (!isNaN(e.valueOf()))
-                    return e;
-                else return undefined;
-                break;
-            default:
-                throw new Error('Invalid cast type "' + type + '"');
+    } else if (typeof value === 'number') {
+        switch (type) {
+        case 'number':
+            return value;
+        case 'integer':
+            return parseInt(value);
+        case 'string':
+            return '' + value;
+        case 'date':
+            var e = new Date(value);
+            if (!isNaN(e.valueOf()))
+                return e;
+            else return undefined;
+            break;
+        default:
+            throw new Error('Invalid cast type "' + type + '"');
         }
     } else {
         console.error('Not casts for ' + typeof value);
@@ -97,7 +97,7 @@ function singleCast(value, type) {
  * Tries to convert propValue to any of the types in allowedCasts
  * and returns the casted value or returns undefined if it can't do the cast
  */
-function specialCast(propValue, allowedCasts) {
+function specialCast(propValue, allowedCasts, verbose) {
     if (typeof allowedCasts === 'string')
         return specialCast(propValue, [allowedCasts]);
     else if (!_.isArray(allowedCasts)) {
@@ -113,69 +113,98 @@ function specialCast(propValue, allowedCasts) {
 
     do {
         casted = singleCast(propValue, allowedCasts[i]);
-        console.log(typeof propValue, propValue, allowedCasts[i]);
+        if (verbose) console.log(propValue, '(', typeof propValue, ')', ' -> ', allowedCasts[i], ':', typeof casted !== 'undefined');
         i++;
     } while (i < allowedCasts.length && typeof casted === 'undefined');
 
     return casted;
 }
 
+function Validation(status) {
+    this.success = true;
+    this.error = null;
 
-function parseFromCL(attributeDefinition, propName, propValue, allowedCasts, postrequisites) {
-    var casted = allowedCasts ? specialCast(propValue, allowedCasts) : propValue;
-    if (typeof casted !== 'undefined') {
-        if (typeof postrequisites === 'function') {
-            if (postrequisites(casted, attributeDefinition)) {
-                attributeDefinition[propName] = casted;
-                return true;
+    if (_.isObject(status))
+        _.extend(this, status);
+}
+
+Validation.prototype.setError = function (code, message) {
+    this.error = {
+        code: code,
+        message: message
+    };
+    this.success = false;
+};
+
+/**
+ *
+ */
+function validateResponse(responses, questionName, response, casts, postrequisites, verbose) {
+    var validation = new Validation();
+
+    //1. defined response
+    if (typeof response === 'undefined') {
+        validation.setError('INVALID_RESPONSE', 'Invalid response');
+        return validation;
+    }
+
+    //2. cast response
+    var castedResponse = casts ? specialCast(response, casts, verbose) : response;
+    if (typeof castedResponse === 'undefined') {
+        validation.setError('CAN\'T_CAST', 'Can\'t cast the response to the given cast types');
+        return validation;
+    }
+
+    //3. postrequisites
+    if (typeof postrequisites === 'function' &&  !postrequisites(castedResponse, _.clone(responses))) {
+        validation.setError('POSTREQUISITES_NOT_ACHIEVED', 'Response didn\'t pass the postrequisites');
+        return validation;
+    }
+
+    validation.castedResponse = castedResponse;
+    return validation;
+}
+
+function validateQuestion(question) {
+    var validateResponse = new Validation();
+
+    if (typeof question.name !== 'string') {
+        validateResponse.setError('INVALID_NAME', 'Invalid name');
+    }
+
+    return validateResponse;
+}
+
+/**
+ * Prompt a question
+ * Prompt a question and if it is required it will be asking the question while its response is not valid
+ * @retrun <void>
+ */
+function promptQuestion(question, responses, promptFn, callback, invalidResponseValidation, verbose) {
+    var newMessage = invalidResponseValidation ? {
+        message: invalidResponseValidation.error.message + ' Try again: ' + question.message
+    } : {};
+
+    try {
+        promptFn([_.extend({}, question, newMessage)], function (res) {
+            var response = res[question.name],
+                responseValidation = validateResponse(responses, question.name, response, question.casts, question.postrequisites, verbose);
+
+            if (question.required === true && !responseValidation.success) {
+                return promptQuestion(question, responses, promptFn, callback, responseValidation, verbose);
             } else {
-                return false;
+                return callback(null, responseValidation);
             }
-        } else {
-            attributeDefinition[propName] = casted;
-            return true;
-        }
-    } else {
-        return false;
+        });
+    } catch (error) {
+        callback(error);
     }
 }
 
-//TODO: complete
-var DEFAULT_SCHEMA = [
-    {
-        name: 'type',
-        default: 'string',
-        type: 'list',
-        required: true,
-        choices: ['string', 'number', 'date', 'object', 'array', 'boolean'],
-        message: 'Which type is your attribute "%attr%"?'
-    }, {
-        name: 'min',
-        type: 'input',
-        prerequisites: {
-            'type': 'string'
-        },
-        postrequisites: function (val) {
-            return val > 0;
-        },
-        required: false,
-        allowedCasts: ['integer']
-    }, {
-        name : 'max',
-        type: 'input',
-        prerequisites: {
-            type: 'string'
-        },
-        postrequisites : function(val, properties) {
-            return val > 0 && val > properties.max;
-        },
-        required : false,
-        allowedCasts: ['integer']
-    }
-];
 
 /**
  * Advanced prompt function
+ * Prompt an array of questions
  * Steps for each property:
  * 1. evaluate prerequisites (if there are)
  * 2. prompt question
@@ -186,83 +215,93 @@ var DEFAULT_SCHEMA = [
  * 7. call transform function (if there is)
  * @return <void>
  */
-function askProperties(attributeName, prompt, schema, callback) {
-    if (typeof attributeName !== 'string')
+function promptQuestions(name, promptFn, questions, callback, verbose) {
+    if (typeof name !== 'string')
         throw new Error('Invalid attribute name');
 
-    if (typeof prompt !== 'function') {
+    if (typeof promptFn !== 'function') {
         throw new Error('Invalid prompt function');
     }
 
-    if (typeof schema === 'function') {
-        callback = schema;
-        schema = _.map(DEFAULT_SCHEMA, _.clone);
+    if (!_.isArray(questions)) {
+        throw new Error('Invalid questions array');
     }
 
-    //TODO: do some schema structure comprobation
-    if (!_.isArray(schema)) {
-        throw new Error('Invalid Schema object');
+    var invalidQuestions = _.chain(questions)
+        .map(validateQuestion)
+        .filter({
+            success: false
+        })
+        .value();
+
+    if (invalidQuestions.length > 0){
+        invalidQuestions.each(function (validationResponse) {
+                console.error(chalk.red(validationResponse.error.message));
+            });
+        throw new Error('There are invalid questions:');
+    } else {
+        questions = _.map(questions, _.clone);
     }
 
     if (typeof callback !== 'function') {
         throw new Error('Invalid callback function');
     }
 
-    /*
-     * this object is of the type: { 'email': true, 'type': 'string', 'aplhanum': false }
-     */
-    var attributeDefinition = {},
-        successParse,
-        extended;
 
-    async.eachSeries(schema,
-        function (property, next) {
-            //initial property comprobations
-            if (typeof property.message !== 'string')
-                property.message = 'What is the "' + property.name + '" value of the attribute "%attr%?"';
+    var responses = {},
+        responsesValidations = [];
 
-            property.message = property.message.replace('%attr%', attributeName);
+    async.eachSeries(questions,
+        function (question, next) {
+            //Message
+            if (typeof question.message !== 'string')
+                question.message = 'What is the "' + question.name + '" value of "%name%"?';
 
-            function ask(callback, bad) {
-                extended = bad ? {message : 'Invalid. Try again: ' + property.message} : {};
-                prompt([_.extend({}, property, extended)], function (res) {
-                    res = res[property.name];
-                    successParse = parseFromCL(attributeDefinition, property.name, res, property.allowedCasts, property.postrequisites);
-                    if (property.required === true && !successParse) {
-                        ask(callback, true);
-                    } else {
-                        callback();
-                    }
-                });
-            }
+            question.message = question.message.replace('%name%', name);
 
-            if (property.prerequisites && !validatePrerequisites(attributeDefinition, property.prerequisites))
+            //Prerequisites
+            if (question.prerequisites && !validatePrerequisites(responses, question.prerequisites))
                 return next();
 
-            ask(function () {
-                if (typeof attributeDefinition[property.name] === 'undefined' && typeof property.default !== 'undefined') {
-                    attributeDefinition[property.name] = property.default;
+            //Prompt
+            promptQuestion(question, responses, promptFn, function (err, responseValidation) {
+                if (err) {
+                    return next(err);
                 }
 
-                if (typeof property.transform === 'function'){
-                    property.transform(attributeDefinition[property.name], attributeDefinition);
+                responses[question.name] = responseValidation.castedResponse;
+                responsesValidations.push(responseValidation);
 
-                    if (typeof attributeDefinition[property.name] === 'undefined'){
-                        delete attributeDefinition[property.name];
+                if (verbose && !responseValidation.success){
+                    console.log(name, question.name, 'not success', responseValidation);
+                }
+
+                //Default response
+                if (typeof responses[question.name] === 'undefined' ) {
+                    if (typeof question.default !== 'undefined'){
+                        responses[question.name] = question.default;
+                    } else {
+                        delete responses[question.name];
                     }
                 }
 
+                //Transform
+                if (typeof question.transform === 'function') {
+                    question.transform(responses[question.name], responses);
 
-                next();
-            });
+                    if (typeof responses[question.name] === 'undefined') {
+                        delete responses[question.name];
+                    }
+                }
+
+                return next();
+            }, undefined, verbose);
         },
         function (err) {
-            callback(attributeDefinition);
+            callback(err, responses, responsesValidations);
         }
     );
-
-
 }
 
-module.exports.parseFromCL = parseFromCL;
-module.exports.askProperties = askProperties;
+module.exports.promptQuestions = promptQuestions;
+module.exports.DEFAULT_QUESTIONS = require('./default_questions');

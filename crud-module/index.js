@@ -111,7 +111,11 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         
         async.eachSeries(Object.keys(attributes),
             function(attributeName, next) {
-                paq.askProperties( attributeName, prompt, function(attributeDefinition){
+                paq.promptQuestions( attributeName, prompt, paq.DEFAULT_QUESTIONS,function(err, attributeDefinition, attributeResponseValidations){
+                    if (err) {
+                        throw new Error(err);
+                    }
+
                     attributes[attributeName] = attributeDefinition;
                     next();
                 });

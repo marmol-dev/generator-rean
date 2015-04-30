@@ -125,7 +125,7 @@ function parseFromCL(attributeDefinition, propName, propValue, allowedCasts, pos
     var casted = allowedCasts ? specialCast(propValue, allowedCasts) : propValue;
     if (typeof casted !== 'undefined') {
         if (typeof postrequisites === 'function') {
-            if (postrequisites(casted)) {
+            if (postrequisites(casted, attributeDefinition)) {
                 attributeDefinition[propName] = casted;
                 return true;
             } else {
@@ -159,10 +159,33 @@ var DEFAULT_SCHEMA = [
             return val > 0;
         },
         required: false,
-        allowedCasts: ['integer', 'number']
+        allowedCasts: ['integer']
+    }, {
+        name : 'max',
+        type: 'input',
+        prerequisites: {
+            type: 'string'
+        },
+        postrequisites : function(val, properties) {
+            return val > 0 && val > properties.max;
+        },
+        required : false,
+        allowedCasts: ['integer']
     }
 ];
 
+/**
+ * Advanced prompt function
+ * Steps for each property:
+ * 1. evaluate prerequisites (if there are)
+ * 2. prompt question
+ * 3. cast prompt response (if there is cast specification)
+ * 4. evaluate postrequisites (if there are)
+ * 5. if cast or postrequisites fail and the property is required then go to step number 2 again
+ * 6. if cast or postrequisites fail and the property is not required and has a default value replace it
+ * 7. call transform function (if there is)
+ * @return <void>
+ */
 function askProperties(attributeName, prompt, schema, callback) {
     if (typeof attributeName !== 'string')
         throw new Error('Invalid attribute name');
@@ -220,6 +243,15 @@ function askProperties(attributeName, prompt, schema, callback) {
                 if (typeof attributeDefinition[property.name] === 'undefined' && typeof property.default !== 'undefined') {
                     attributeDefinition[property.name] = property.default;
                 }
+
+                if (typeof property.transform === 'function'){
+                    property.transform(attributeDefinition[property.name], attributeDefinition);
+
+                    if (typeof attributeDefinition[property.name] === 'undefined'){
+                        delete attributeDefinition[property.name];
+                    }
+                }
+
 
                 next();
             });

@@ -1,7 +1,12 @@
 'use strict';
 
 module.exports = {
-	db: 'mongodb://localhost/<%= slugifiedAppName %>-test',
+    db: {
+        host: '127.0.0.1',
+        port: '28015',
+        db: '<%= camelizedAppName %>Test',
+        sessionTable: 'session'
+    },
 	port: 3001,
 	app: {
 		title: '<%= appName %> - Test Environment'

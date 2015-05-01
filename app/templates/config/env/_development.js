@@ -4,7 +4,7 @@ module.exports = {
     db: {
         host: '127.0.0.1',
         port: '28015',
-        db: '<%= slugifiedAppName %>Dev',
+        db: '<%= camelizedAppName %>Dev',
         sessionTable: 'session'
     },
     app: {

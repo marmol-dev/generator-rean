@@ -2,7 +2,12 @@
 
 module.exports = {
 	port: 443,
-	db: process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://localhost/<%= slugifiedAppName %>',
+    db: {
+        host: '127.0.0.1',
+        port: '28015',
+        db: '<%= camelizedAppName %>Sec',
+        sessionTable: 'session'
+    },
 	assets: {
 		lib: {
 			css: [

@@ -5,14 +5,27 @@
     <div class="col-md-12">
         <form class="form-horizontal" data-ng-submit="update()" novalidate>
             <fieldset>
+                <% for (var attributeName in attributes) { var attribute = attributes[attributeName]; %>
                 <div class="form-group">
-                    <label class="control-label" for="name">Name</label>
+                    <label class="control-label" for="<%= attributeName %>"><%= _.capitalize(attributeName) %></label>
                     <div class="controls">
-                        <input type="text" data-ng-model="<%= camelizedSingularName %>.name" id="name" class="form-control" placeholder="Name" required>
+                        <% if (attribute.type === 'string') { %>
+                        <input type="text" data-ng-model="<%= camelizedSingularName %>.<%= attributeName %>" id="<%= attributeName  %>" class="form-control" placeholder="<%= _.capitalize(attributeName) %>" <%= attribute.required ? 'required' : '' %>>
+                        <% } else if (attribute.type === 'number') {%>
+                         <input type="number" data-ng-model="<%= camelizedSingularName %>.<%= attributeName %>" id="<%= attributeName  %>" class="form-control" placeholder="<%= _.capitalize(attributeName) %>" <%= attribute.required ? 'required' : '' %> <%= attribute.min ? 'min="' + attribute.min +'"' : '' %><%= attribute.max ? 'max="' + attribute.max +'"' : '' %>>
+                        <% } else if (attribute.type === 'boolean') {%>
+                        <div class="btn-group">
+                            <label class="btn btn-default" id="<%= attributeName %>" data-ng-class="{ active : <%= camelizedSingularName %>.<%= attributeName %> === true }" data-ng-click="<%= camelizedSingularName %>.<%= attributeName  %> = true;" uncheckable>On</label>
+                            <label class="btn btn-default" id="<%= attributeName %>" data-ng-class="{ active : <%= camelizedSingularName %>.<%= attributeName %> === false }" data-ng-click="<%= camelizedSingularName %>.<%= attributeName  %> = false;" uncheckable>Off</label>
+                        </div>
+                        <% } else if (attribute.type === 'date'){ %>
+                        <datepicker ng-model="<%= camelizedSingularName %>.<%= attributeName %>" show-weeks="true" class="well well-sm"></datepicker>
+                        <% } %>
                     </div>
                 </div>
+                <% } %>
                 <div class="form-group">
-                    <input type="submit" value="Update" class="btn btn-default">
+                    <input type="submit" class="btn btn-default" value="Update">
                 </div>
 				<div data-ng-show="error" class="text-danger">
 					<strong data-ng-bind="error"></strong>

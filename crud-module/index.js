@@ -109,7 +109,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
 
         this.prompt(prompts, function (props) {
             props.attributes.split(',').forEach(function (attribute) {
-                this.attributes[_.trim(attribute)] = {};
+                this.attributes[_.camelize(_.trim(attribute))] = {};
             }.bind(this));
             done();
         }.bind(this));

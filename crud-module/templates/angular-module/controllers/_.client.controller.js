@@ -7,19 +7,19 @@ angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralNam
 
 		// Create new <%= humanizedSingularName %>
 		$scope.create = function() {
+            var self = this;
 			// Create new <%= humanizedSingularName %> object
-			var <%= camelizedSingularName %> = new <%= classifiedPluralName %> ({
-				<% for(var attrName in attributes) { %>
-				'<%= attrName %>' : this['<%= attrName %>'], <% } %>
+			var <%= camelizedSingularName %> = new <%= classifiedPluralName %> ({ <% for(var attrName in attributes) { %>
+				<%= attrName %> : this.<%= attrName %>, <% } %>
 			});
 
 			// Redirect after save
 			<%= camelizedSingularName %>.$save(function(response) {
 				$location.path('<%= slugifiedPluralName %>/' + response.id);
 
-				// Clear form fields
+                // Clear form fields
                 <% for(var attrName in attributes) { %>
-				$scope.<%= attrName %> = ''; <% } %>
+                self.<%= attrName %> = '';<% } %>
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});

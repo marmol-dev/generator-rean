@@ -19,11 +19,14 @@ var <%= classifiedSingularName %> = thinky.createModel('<%= camelizedPluralName 
     enforce_extra: 'remove'
 });
 
-<%= classifiedSingularName %>.pre('save', function(next) {
-    this.created = new Date(this.created || null);
+<%= classifiedSingularName %>.pre('save', function(next) { <% for(var attributeName in attributes){ var attribute = attributes[attributeName]; if (attribute.type === 'date'){ %>
+    this.<%= attributeName %> = new Date(this.<%= attributeName %>);
+    if (isNaN(this.<%= attributeName %>.valueOf())) delete this.<%= attributeName %>; <% }} %>
+
     next();
 });
 
-<%= classifiedSingularName %>.belongsTo(User, 'user', 'userId', 'id');
+//TODO:
+//<%= classifiedSingularName %>.belongsTo(User, 'user', 'userId', 'id');
 
 module.exports = <%= classifiedSingularName %>;

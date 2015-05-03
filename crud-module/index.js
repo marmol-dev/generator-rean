@@ -4,7 +4,8 @@ var util = require('util'),
     yeoman = require('yeoman-generator'),
     async = require('async'),
     paq = require('../paq'),
-    chalk = require('chalk');
+    chalk = require('chalk'),
+    path = require('path');
 
 
 var ModuleGenerator = yeoman.generators.NamedBase.extend({
@@ -85,6 +86,16 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         }
     },
     askForAttributes: function () {
+        if (this.options['load-attributes']){
+            var attrs = require(path.join(this.destinationRoot(), 'app/models/' +  this.slugifiedSingularName + '.server.model.attributes.json'));
+            if (!attrs){
+                this.options['load-attributes'] = false;
+                return;
+            }
+            this.attributes = attrs;
+            return;
+        }
+
         var done = this.async(),
             _ = this._;
 
@@ -104,6 +115,10 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         }.bind(this));
     },
     askForAttributeProperties : function(){
+        if (this.options['load-attributes']){
+            return;
+        }
+
         var done = this.async(),
             _ = this._,
             attributes = this.attributes,
@@ -126,6 +141,19 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
                 done();
             }
         );
+    },
+    saveAttributesInFile : function(){
+        if (this.options['load-attributes']){
+            return;
+        }
+        var jsonAttributes;
+        try {
+            jsonAttributes = JSON.stringify(this.attributes, null, '\t');
+        } catch(e) {
+            throw new Error('Couldn\'t stringify the attributes :(');
+        }
+
+        this.write('app/models/' +  this.slugifiedSingularName + '.server.model.attributes.json', JSON.stringify(this.attributes));
     },
     parseThinkyAttributes: function () {
         var _this = this,

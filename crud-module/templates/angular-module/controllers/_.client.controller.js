@@ -5,21 +5,24 @@ angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralNam
 	function($scope, $stateParams, $location, Authentication, <%= classifiedPluralName %>) {
 		$scope.authentication = Authentication;
 
+		$scope.build = function(){
+			$scope.<%= camelizedSingularName %> = new <%= classifiedPluralName %> ({ <% for(var attrName in attributes) { var attr =  attributes[attrName]; %>
+				<%= attrName %> : <%= attr.type === 'boolean' ? attr.default ? attr.default : true : 'null' %>, <% } %>
+			});
+		};
+
 		// Create new <%= humanizedSingularName %>
 		$scope.create = function() {
             var self = this;
 			// Create new <%= humanizedSingularName %> object
-			var <%= camelizedSingularName %> = new <%= classifiedPluralName %> ({ <% for(var attrName in attributes) { %>
-				<%= attrName %> : this.<%= attrName %>, <% } %>
-			});
+			var <%= camelizedSingularName %> = $scope.<%= camelizedSingularName %>;
 
 			// Redirect after save
 			<%= camelizedSingularName %>.$save(function(response) {
 				$location.path('<%= slugifiedPluralName %>/' + response.id);
 
-                // Clear form fields
-                <% for(var attrName in attributes) { %>
-                self.<%= attrName %> = '';<% } %>
+                // Clear form fields<% for(var attrName in attributes) { %>
+                <%= camelizedSingularName %>.<%= attrName %> = null;<% } %>
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});

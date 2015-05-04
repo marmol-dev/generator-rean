@@ -1,4 +1,4 @@
-<section data-ng-controller="<%= classifiedPluralName %>Controller">
+<section data-ng-controller="<%= classifiedPluralName %>Controller" data-ng-init="build()">
     <div class="page-header">
         <h1>New <%= humanizedSingularName %></h1>
     </div>
@@ -10,16 +10,16 @@
                     <label class="control-label" for="<%= attributeName %>"><%= _.capitalize(attributeName) %></label>
                     <div class="controls">
                         <% if (attribute.type === 'string') { %>
-                        <input type="text" data-ng-model="<%= attributeName %>" id="<%= attributeName  %>" class="form-control" placeholder="<%= _.capitalize(attributeName) %>" <%= attribute.required ? 'required' : '' %>>
+                        <input type="text" data-ng-model="<%= camelizedSingularName %>.<%= attributeName %>" id="<%= attributeName  %>" class="form-control" placeholder="<%= _.capitalize(attributeName) %>" <%= attribute.required ? 'required' : '' %>>
                         <% } else if (attribute.type === 'number') {%>
-                         <input type="number" data-ng-model="<%= attributeName %>" id="<%= attributeName  %>" class="form-control" placeholder="<%= _.capitalize(attributeName) %>" <%= attribute.required ? 'required' : '' %> <%= attribute.min ? 'min="' + attribute.min +'"' : '' %><%= attribute.max ? 'max="' + attribute.max +'"' : '' %>>
+                         <input type="number" data-ng-model="<%= camelizedSingularName %>.<%= attributeName %>" id="<%= attributeName  %>" class="form-control" placeholder="<%= _.capitalize(attributeName) %>" <%= attribute.required ? 'required' : '' %> <%= attribute.min ? 'min="' + attribute.min +'"' : '' %><%= attribute.max ? 'max="' + attribute.max +'"' : '' %>>
                         <% } else if (attribute.type === 'boolean') {%>
                         <div class="btn-group">
-                            <label class="btn btn-default" id="<%= attributeName %>" data-ng-class="{ active : <%= attributeName %> === true }" data-ng-click="<%= attributeName  %> = true;" uncheckable>On</label>
-                            <label class="btn btn-default" id="<%= attributeName %>" data-ng-class="{ active : <%= attributeName %> === false }" data-ng-click="<%= attributeName  %> = false;" uncheckable>Off</label>
+                            <label class="btn btn-default" id="<%= attributeName %>" data-ng-class="{ active : <%= camelizedSingularName %>.<%= attributeName %> === true }" data-ng-click="<%= camelizedSingularName %>.<%= attributeName  %> = true;" uncheckable>Yes</label>
+                            <label class="btn btn-default" id="<%= attributeName %>" data-ng-class="{ active : <%= camelizedSingularName %>.<%= attributeName %> === false }" data-ng-click="<%= camelizedSingularName %>.<%= attributeName  %> = false;" uncheckable>No</label>
                         </div>
                         <% } else if (attribute.type === 'date'){ %>
-                        <datepicker ng-model="<%= attributeName %>" show-weeks="true" class="well well-sm"></datepicker>
+                        <datepicker ng-model="<%= camelizedSingularName %>.<%= attributeName %>" show-weeks="true" class="well well-sm"></datepicker>
                         <% } %>
                     </div>
                 </div>

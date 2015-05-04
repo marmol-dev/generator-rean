@@ -182,7 +182,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             //omit the type property and parse all the other properties of the attribute description
             var _attributeDescription = _.omit(attributeDescription, 'type');
             _.forIn(_attributeDescription, function (value, key) {
-                if (typeof value === 'boolean') {
+                if (typeof value === 'boolean' && key !== 'default') {
                     if (value) {
                         parsedAttributeDescription.push(key + '()');
                     }

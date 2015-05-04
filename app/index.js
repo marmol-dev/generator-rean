@@ -58,7 +58,7 @@ var MeanGenerator = yeoman.generators.Base.extend({
 
 			this.slugifiedAppName = this._.slugify(this.appName);
 			this.humanizedAppName = this._.humanize(this.appName);
-            this.camelizedAppName = this._.camelCase(this.appName);
+            this.camelizedAppName = this._.camelize(this.appName);
 			this.capitalizedAppAuthor = this._.capitalize(this.appAuthor);
 
 			done();

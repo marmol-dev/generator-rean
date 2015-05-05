@@ -287,7 +287,7 @@ function promptQuestions(name, promptFn, questions, callback, verbose) {
 
                 //Transform
                 if (typeof question.transform === 'function') {
-                    question.transform(responses[question.name], responses);
+                    responses[question.name] = question.transform(responses[question.name], responses);
 
                     if (typeof responses[question.name] === 'undefined') {
                         delete responses[question.name];

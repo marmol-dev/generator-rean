@@ -15,7 +15,12 @@ module.exports = [
 		type: 'list',
 		required: true,
 		choices: ['string', 'number', 'date', 'object', 'array', 'boolean'],
-		message: 'Which "type" is your attribute "%name%"?'
+		message: 'Which "type" is your attribute "%name%"?',
+		thinky : {
+			parse : function(val) {
+				return val + '()';
+			}
+		}
     },
 	{
 		name: 'required',
@@ -48,11 +53,16 @@ module.exports = [
 			required: false
 		},
 		casts: ['boolean'],
-		message: 'What is the "default" value of "%name%"?'
+		message: 'What is the "default" value of "%name%"?',
+		thinky : {
+			parse: function(value) {
+				return 'default(' + value + ')';
+			}
+		}
     }, {
 		name : 'additional',
 		type: 'list',
-		choices: ['alphanum', 'email', 'lowercase', 'uppercase', 'none'],
+		choices: ['none', 'alphanum', 'email', 'lowercase', 'uppercase'],
 		prerequisites : {
 			type: 'string'
 		},
@@ -60,9 +70,10 @@ module.exports = [
 		postrequisites : function(val) {
 			return val !== 'none';
 		},
-		transform : function(val, properties){
-			properties[val] = true;
-			return undefined;
+		thinky: {
+			parse : function(val) {
+				return val + '()';
+			}
 		}
 	},
 	{
@@ -103,10 +114,6 @@ module.exports = [
 			max: undefined,
 			length: undefined,
 			additional : undefined,
-			lowercase: undefined,
-			uppercase: undefined,
-			email: undefined,
-			alphanum: undefined
 		},
 		message: 'What are the "enum" allowed values for "%name%"?',
 		postrequisites : function(val){

@@ -176,20 +176,49 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         this.thinkyParsedAttributes = {};
 
         function parseDescription(attributeDescription) {
-            var parsedAttributeDescription = [];
-            //first add the type to the parsed attributeDescription
-            parsedAttributeDescription.push(attributeDescription.type + '()');
-            //omit the type property and parse all the other properties of the attribute description
-            var _attributeDescription = _.omit(attributeDescription, 'type');
-            _.forIn(_attributeDescription, function (value, key) {
-                if (typeof value === 'boolean' && key !== 'default') {
-                    if (value) {
-                        parsedAttributeDescription.push(key + '()');
-                    }
-                } else {
-                    parsedAttributeDescription.push(key + '(' + getParsedString(value) + ')');
-                }
+            var parsedAttributeDescription = [],
+				propertySchema,
+				possiblePropertySchemas,
+				parsed;
+
+            _.forIn(attributeDescription, function (value, key) {
+
+				//find the property schema of this attribute
+				possiblePropertySchemas = _.filter(paq.DEFAULT_QUESTIONS, function(currentPropertySchema){
+						if (currentPropertySchema.name !== key)
+							return false;
+
+						if (currentPropertySchema.prerequisites) {
+							return paq.validatePrerequisites(attributeDescription, currentPropertySchema.prerequisites);
+						} else return true;
+					});
+
+				propertySchema = _.find(possiblePropertySchemas, function(value){
+					return value.prerequisites;
+				});
+
+				if (!propertySchema)
+					propertySchema = _.last(possiblePropertySchemas);
+
+				if (propertySchema && propertySchema.thinky && propertySchema.thinky.display === false)
+					return;
+
+				if (propertySchema && propertySchema.thinky && typeof propertySchema.thinky.parse === 'function') {
+					parsed = propertySchema.thinky.parse(value, attributeDescription);
+					if (typeof parsed !== 'string')
+						throw new Error('Invalid Thinky parse function for property "' + key + '".');
+					parsedAttributeDescription.push(parsed);
+				} else {
+					if (typeof value === 'boolean') {
+						if (value) {
+							parsedAttributeDescription.push(key + '()');
+						}
+					} else {
+						parsedAttributeDescription.push(key + '(' + getParsedString(value) + ')');
+					}
+				}
             });
+
             return parsedAttributeDescription;
         }
 

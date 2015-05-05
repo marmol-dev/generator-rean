@@ -304,4 +304,6 @@ function promptQuestions(name, promptFn, questions, callback, verbose) {
 }
 
 module.exports.promptQuestions = promptQuestions;
+module.exports.promptQuestion = promptQuestion;
+module.exports.validatePrerequisites = validatePrerequisites;
 module.exports.DEFAULT_QUESTIONS = require('./default_questions');

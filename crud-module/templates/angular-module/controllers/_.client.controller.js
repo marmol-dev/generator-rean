@@ -6,7 +6,7 @@ angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralNam
 		$scope.authentication = Authentication;
 
 		$scope.build = function(){
-			$scope.<%= camelizedSingularName %> = new <%= classifiedPluralName %> ({ <% for(var attrName in attributes) { var attr =  attributes[attrName]; %>
+			$scope.<%= camelizedSingularName %> = new <%= classifiedPluralName %> ({ <% for(var attrName in publicAttributes) { var attr =  publicAttributes[attrName]; %>
 				<%= attrName %> : <%= attr.type === 'boolean' ? attr.default ? attr.default : true : 'null' %>, <% } %>
 			});
 		};
@@ -21,7 +21,7 @@ angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralNam
 			<%= camelizedSingularName %>.$save(function(response) {
 				$location.path('<%= slugifiedPluralName %>/' + response.id);
 
-                // Clear form fields<% for(var attrName in attributes) { %>
+                // Clear form fields<% for(var attrName in publicAttributes) { %>
                 <%= camelizedSingularName %>.<%= attrName %> = null;<% } %>
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;

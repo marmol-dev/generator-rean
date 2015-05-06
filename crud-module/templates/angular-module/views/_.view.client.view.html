@@ -1,10 +1,10 @@
 <section data-ng-controller="<%= classifiedPluralName %>Controller" data-ng-init="findOne()">
 	<div class="page-header">
-		<h1>View <%= humanizedSingularName %> <%= attributes.name ? '{{'+ camelizedSingularName + '.name}}' : (attributes.title ? '{{'+ camelizedSingularName + '.title}}' : '') %><h1>
+		<h1>View <%= humanizedSingularName %> <%= publicAttributes.name ? '{{'+ camelizedSingularName + '.name}}' : (publicAttributes.title ? '{{'+ camelizedSingularName + '.title}}' : '') %><h1>
 	</div>
 	<div>
         <ul>
-            <% for (var attributeName in attributes) { var attribute = attributes[attributeName]; %>
+            <% for (var attributeName in publicAttributes) { %>
             <li><strong><%= attributeName %>:</strong> <span><%= '{{' + camelizedSingularName + '.' + attributeName + '}}' %></span></li>
             <% } %>
         </ul>

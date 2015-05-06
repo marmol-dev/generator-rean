@@ -121,7 +121,6 @@ module.exports = [
 		},
 		transform: function(val, def){
 			var toret = _.map(val.split(','), _.trim);
-			console.log(val, toret);
 			return toret;
 		}
 	},

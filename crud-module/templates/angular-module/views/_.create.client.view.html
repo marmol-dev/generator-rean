@@ -5,7 +5,7 @@
     <div class="col-md-12">
         <form class="form-horizontal" data-ng-submit="create()" novalidate>
             <fieldset>
-                <% for (var attributeName in attributes) { var attribute = attributes[attributeName]; %>
+                <% for (var attributeName in publicAttributes) { var attribute = publicAttributes[attributeName]; %>
                 <div class="form-group">
                     <label class="control-label" for="<%= attributeName %>"><%= _.capitalize(attributeName) %></label>
                     <div class="controls">

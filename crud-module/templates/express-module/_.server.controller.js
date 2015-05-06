@@ -19,7 +19,10 @@ exports.cleanInput = function(req, res, next) {
  */
 exports.create = function(req, res) {
 	var <%= camelizedSingularName %> = new <%= classifiedSingularName %>(req.body);
-	<%= camelizedSingularName %>.userId = req.user.id;
+	//<%= camelizedSingularName %>.userId = req.user.id;
+	
+	<% for (var aN in privateAttributes) { %>
+	<%= camelizedSingularName %>.<%= aN %> = undefined;//input your value here <% } %>
 
 	<%= camelizedSingularName %>.save(function(err) {
 		if (err) {
@@ -46,7 +49,9 @@ exports.update = function(req, res) {
 	var <%= camelizedSingularName %> = req.<%= camelizedSingularName %> ;
 
 	<%= camelizedSingularName %> = _.extend(<%= camelizedSingularName %> , req.body);
-    <%= camelizedSingularName %>.userId = req.<%= camelizedSingularName %>.user.id;
+    //<%= camelizedSingularName %>.userId = req.<%= camelizedSingularName %>.user.id;
+	<% for (var aN in privateAttributes) { %>
+	<%= camelizedSingularName %>.<%= aN %> = undefined; //set the value here <% } %>
 
 	<%= camelizedSingularName %>.save(function(err) {
 		if (err) {
@@ -88,6 +93,7 @@ exports.list = function(req, res) {
                 }
             }
         })
+		.pluck(<%= JSON.stringify(Object.keys(publicAttributes)) %>)
         .run()
         .then(function(<%= camelizedPluralName %>){
             res.json(<%= camelizedPluralName %>);
@@ -111,6 +117,7 @@ exports.<%= camelizedSingularName %>ByID = function(req, res, next, id) {
                 }
             }
         })
+		.pluck(<%= JSON.stringify(Object.keys(publicAttributes)) %>)
         .run()
         .then(function(<%= camelizedSingularName %>) {
             req.<%= camelizedSingularName %> = <%= camelizedSingularName %>;

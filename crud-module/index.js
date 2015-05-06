@@ -36,25 +36,25 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
                 value: 'addCSSFolder',
                 name: 'css',
                 checked: false
-   }, {
+            }, {
                 value: 'addImagesFolder',
                 name: 'img',
                 checked: false
-   }, {
+            }, {
                 value: 'addDirectivesFolder',
                 name: 'directives',
                 checked: false
-   }, {
+            }, {
                 value: 'addFiltersFolder',
                 name: 'filters',
                 checked: false
-   }]
-  }, {
+            }]
+        }, {
             type: 'confirm',
             name: 'addMenuItems',
             message: 'Would you like to add the CRUD module links to a menu?',
             default: true
-  }];
+        }];
 
         this.prompt(prompts, function (props) {
             this.addCSSFolder = this._.contains(props.folders, 'addCSSFolder');
@@ -76,7 +76,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
                 name: 'menuId',
                 message: 'What is your menu identifier(Leave it empty and press ENTER for the default "topbar" menu)?',
                 default: 'topbar'
-   }];
+            }];
 
             this.prompt(prompts, function (props) {
                 this.menuId = props.menuId;
@@ -86,9 +86,9 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         }
     },
     askForAttributes: function () {
-        if (this.options['load-attributes']){
-            var attrs = require(path.join(this.destinationRoot(), 'app/models/' +  this.slugifiedSingularName + '.server.model.attributes.json'));
-            if (!attrs){
+        if (this.options['load-attributes']) {
+            var attrs = require(path.join(this.destinationRoot(), 'app/models/' + this.slugifiedSingularName + '.server.model.attributes.json'));
+            if (!attrs) {
                 this.options['load-attributes'] = false;
                 return;
             }
@@ -114,19 +114,21 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             done();
         }.bind(this));
     },
-    askForAttributeProperties : function(){
-        if (this.options['load-attributes']){
+    askForAttributeProperties: function () {
+        if (this.options['load-attributes']) {
             return;
         }
 
         var done = this.async(),
             _ = this._,
             attributes = this.attributes,
-            prompt = function(){ this.prompt.apply(this, arguments); }.bind(this);
-        
+            prompt = function () {
+                this.prompt.apply(this, arguments);
+            }.bind(this);
+
         async.eachSeries(Object.keys(attributes),
-            function(attributeName, next) {
-                paq.promptQuestions( attributeName, prompt, paq.DEFAULT_QUESTIONS,function(err, attributeDefinition, attributeResponseValidations){
+            function (attributeName, next) {
+                paq.promptQuestions(attributeName, prompt, paq.DEFAULT_QUESTIONS, function (err, attributeDefinition, attributeResponseValidations) {
                     if (err) {
                         throw new Error(err);
                     }
@@ -142,18 +144,54 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             }
         );
     },
-    saveAttributesInFile : function(){
-        if (this.options['load-attributes']){
+    askForPrivateAttributes: function () {
+        var prompts = [{
+            name: 'private',
+            type: 'checkbox',
+            message: 'Which attributes are "private"? (This means that it\'s value can\'t be modified or created by a user form. Eg: passwords, roles, some dates, user creator ...)',
+            choices: Object.keys(this.attributes),
+            thinky: {
+                display: false
+            }
+        }];
+
+        paq.DEFAULT_QUESTIONS = this._.union(paq.DEFAULT_QUESTIONS, prompts);
+
+        if (this.options['load-attributes']) {
+            return;
+        }
+
+        var done = this.async();
+
+        this.prompt(prompts, function (res) {
+            var privateAttributes = res.private;
+            privateAttributes.forEach(function (attr) {
+                this.attributes[attr].private = true;
+                done();
+            }.bind(this));
+        }.bind(this));
+
+    },
+    saveAttributesInFile: function () {
+        if (this.options['load-attributes']) {
             return;
         }
         var jsonAttributes;
         try {
             jsonAttributes = JSON.stringify(this.attributes, null, '\t');
-        } catch(e) {
+        } catch (e) {
             throw new Error('Couldn\'t stringify the attributes :(');
         }
 
-        this.write('app/models/' +  this.slugifiedSingularName + '.server.model.attributes.json', JSON.stringify(this.attributes));
+        this.write('app/models/' + this.slugifiedSingularName + '.server.model.attributes.json', JSON.stringify(this.attributes));
+    },
+    wrapAttributesObject: function () {
+        function isPrivate(value) {
+            return value.private === true;
+        }
+
+        this.privateAttributes = this._.pick(this.attributes, isPrivate);
+        this.publicAttributes = this._.omit(this.attributes, isPrivate);
     },
     parseThinkyAttributes: function () {
         var _this = this,
@@ -177,46 +215,46 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
 
         function parseDescription(attributeDescription) {
             var parsedAttributeDescription = [],
-				propertySchema,
-				possiblePropertySchemas,
-				parsed;
+                propertySchema,
+                possiblePropertySchemas,
+                parsed;
 
             _.forIn(attributeDescription, function (value, key) {
 
-				//find the property schema of this attribute
-				possiblePropertySchemas = _.filter(paq.DEFAULT_QUESTIONS, function(currentPropertySchema){
-						if (currentPropertySchema.name !== key)
-							return false;
+                //find the property schema of this attribute
+                possiblePropertySchemas = _.filter(paq.DEFAULT_QUESTIONS, function (currentPropertySchema) {
+                    if (currentPropertySchema.name !== key)
+                        return false;
 
-						if (currentPropertySchema.prerequisites) {
-							return paq.validatePrerequisites(attributeDescription, currentPropertySchema.prerequisites);
-						} else return true;
-					});
+                    if (currentPropertySchema.prerequisites) {
+                        return paq.validatePrerequisites(attributeDescription, currentPropertySchema.prerequisites);
+                    } else return true;
+                });
 
-				propertySchema = _.find(possiblePropertySchemas, function(value){
-					return value.prerequisites;
-				});
+                propertySchema = _.find(possiblePropertySchemas, function (value) {
+                    return value.prerequisites;
+                });
 
-				if (!propertySchema)
-					propertySchema = _.last(possiblePropertySchemas);
+                if (!propertySchema)
+                    propertySchema = _.last(possiblePropertySchemas);
 
-				if (propertySchema && propertySchema.thinky && propertySchema.thinky.display === false)
-					return;
+                if (propertySchema && propertySchema.thinky && propertySchema.thinky.display === false)
+                    return;
 
-				if (propertySchema && propertySchema.thinky && typeof propertySchema.thinky.parse === 'function') {
-					parsed = propertySchema.thinky.parse(value, attributeDescription);
-					if (typeof parsed !== 'string')
-						throw new Error('Invalid Thinky parse function for property "' + key + '".');
-					parsedAttributeDescription.push(parsed);
-				} else {
-					if (typeof value === 'boolean') {
-						if (value) {
-							parsedAttributeDescription.push(key + '()');
-						}
-					} else {
-						parsedAttributeDescription.push(key + '(' + getParsedString(value) + ')');
-					}
-				}
+                if (propertySchema && propertySchema.thinky && typeof propertySchema.thinky.parse === 'function') {
+                    parsed = propertySchema.thinky.parse(value, attributeDescription);
+                    if (typeof parsed !== 'string')
+                        throw new Error('Invalid Thinky parse function for property "' + key + '".');
+                    parsedAttributeDescription.push(parsed);
+                } else {
+                    if (typeof value === 'boolean') {
+                        if (value) {
+                            parsedAttributeDescription.push(key + '()');
+                        }
+                    } else {
+                        parsedAttributeDescription.push(key + '(' + getParsedString(value) + ')');
+                    }
+                }
             });
 
             return parsedAttributeDescription;

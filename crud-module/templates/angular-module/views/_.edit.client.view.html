@@ -5,7 +5,7 @@
     <div class="col-md-12">
         <form class="form-horizontal" data-ng-submit="update()" novalidate>
             <fieldset>
-                <% for (var attributeName in publicAttributes) { var attribute = publicAttributes[attributeName]; %>
+                <% for (var attributeName in publicAttributes) { var attribute = publicAttributes[attributeName]; if (!isNonEditableAttribute(attribute) && !isOneTimeEditableAttribute(attribute)) {%>
                 <div class="form-group">
                     <label class="control-label" for="<%= attributeName %>"><%= _.capitalize(attributeName) %></label>
                     <div class="controls">
@@ -23,7 +23,7 @@
                         <% } %>
                     </div>
                 </div>
-                <% } %>
+                <% }} %>
                 <div class="form-group">
                     <input type="submit" class="btn btn-default" value="Update">
                 </div>

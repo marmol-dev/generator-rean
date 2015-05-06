@@ -21,7 +21,7 @@ exports.create = function(req, res) {
 	var <%= camelizedSingularName %> = new <%= classifiedSingularName %>(req.body);
 	//<%= camelizedSingularName %>.userId = req.user.id;
 	
-	<% for (var aN in privateAttributes) { %>
+	<% for (var aN in nonEditableAttributes) { %>
 	<%= camelizedSingularName %>.<%= aN %> = undefined;//input your value here <% } %>
 
 	<%= camelizedSingularName %>.save(function(err) {
@@ -50,8 +50,9 @@ exports.update = function(req, res) {
 
 	<%= camelizedSingularName %> = _.extend(<%= camelizedSingularName %> , req.body);
     //<%= camelizedSingularName %>.userId = req.<%= camelizedSingularName %>.user.id;
-	<% for (var aN in privateAttributes) { %>
-	<%= camelizedSingularName %>.<%= aN %> = undefined; //set the value here <% } %>
+	<% for (var aN in nonEditableAttributes) { %>
+	<%= camelizedSingularName %>.<%= aN %> = undefined; //set the value here <% } %> <% for (var aN in oneTimeEditableAttributes) { %>
+	<%= camelizedSingularName %>.<%= aN %> = undefined; <% } %>
 
 	<%= camelizedSingularName %>.save(function(err) {
 		if (err) {
@@ -86,15 +87,18 @@ exports.delete = function(req, res) {
  */
 exports.list = function(req, res) {
     <%= classifiedSingularName %>.orderBy(r.desc('create'))
-        .getJoin({
+        /*.getJoin({
             user: {
                 _apply : function(user){
                     return user.pluck('id', 'firstName', 'lastName', 'displayName', 'username');
                 }
             }
-        })
-		.pluck(<%= JSON.stringify(Object.keys(publicAttributes)) %>)
-        .run()
+        })*/
+		.without(<%= JSON.stringify(Object.keys(privateAttributes)) %>)
+        .execute()
+		.then(function(cursor){
+			return cursor.toArray();
+		})
         .then(function(<%= camelizedPluralName %>){
             res.json(<%= camelizedPluralName %>);
         })
@@ -110,15 +114,15 @@ exports.list = function(req, res) {
  */
 exports.<%= camelizedSingularName %>ByID = function(req, res, next, id) {
     <%= classifiedSingularName %>.get(id)
-        .getJoin({
+        /*.getJoin({
             user: {
                 _apply : function(user){
                     return user.pluck('id', 'firstName', 'lastName', 'displayName', 'username');
                 }
             }
-        })
-		.pluck(<%= JSON.stringify(Object.keys(publicAttributes)) %>)
-        .run()
+        })*/
+		.without(<%= JSON.stringify(Object.keys(privateAttributes)) %>)
+        .execute()
         .then(function(<%= camelizedSingularName %>) {
             req.<%= camelizedSingularName %> = <%= camelizedSingularName %>;
             next();

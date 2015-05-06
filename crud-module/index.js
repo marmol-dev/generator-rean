@@ -144,11 +144,24 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             }
         );
     },
+    defineAttributeManipulationMethods : function() {
+        this.isPrivateAttribute = function isPrivate(value) {
+            return value.private === true;
+        };
+
+        this.isNonEditableAttribute = function isNonEditable(value){
+            return value.nonEditable || value.private;
+        };
+
+        this.isOneTimeEditableAttribute = function isOneTimeEditable(value){
+            return value.oneTimeEditable;
+        };
+    },
     askForPrivateAttributes: function () {
         var prompts = [{
             name: 'private',
             type: 'checkbox',
-            message: 'Which attributes are "private"? (This means that it\'s value can\'t be modified or created by a user form. Eg: passwords, roles, some dates, user creator ...)',
+            message: 'Which attributes are "private"? (This means that the value of this attribute won\'t be displayed in the client and it can\'t be modified "directly" from a form like other attributes. Eg: passwords, email verification tokens, ...)',
             choices: Object.keys(this.attributes),
             thinky: {
                 display: false
@@ -172,6 +185,74 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         }.bind(this));
 
     },
+    askForNonEditableAttributes: function() {
+        var attrs = Object.keys(this._.omit(this.attributes, this.isPrivateAttribute));
+        var prompts = [{
+            name: 'nonEditable',
+            type: 'checkbox',
+            message: 'Which attributes are "non-editable"? (This means that the value of this attribute don\'t will be directly modified or created by the user. Eg: update dates, user ids, usernames, product califications, etc. The attribute will be displayed in the client in opposition to "private" attributes )',
+            choices: attrs,
+            thinky: {
+                display: false
+            }
+        }];
+
+        paq.DEFAULT_QUESTIONS = this._.union(paq.DEFAULT_QUESTIONS, prompts);
+
+        if (!attrs.length){
+            return;
+        }
+
+        if (this.options['load-attributes']) {
+            return;
+        }
+
+        var done = this.async();
+
+        this.prompt(prompts, function (res) {
+            var neAttributes = res.nonEditable;
+            neAttributes.forEach(function (attr) {
+                this.attributes[attr].nonEditable = true;
+                done();
+            }.bind(this));
+        }.bind(this));
+
+    },
+    askOneTimeEditableAttributes: function() {
+        var _ = this._;
+
+        var attrs = Object.keys(_.omit(_.omit(this.attributes, this.isPrivateAttribute), this.isNonEditableAttribute));
+        var prompts = [{
+            name: 'oneTimeEditable',
+            type: 'checkbox',
+            message: 'Which attributes are "one-time-editable"? (This means that the value of this attribute only will be modified in the creation of the model and the user (or optionally user and system) is not allowed to modify it afterwards)',
+            choices: attrs,
+            thinky: {
+                display: false
+            }
+        }];
+
+        paq.DEFAULT_QUESTIONS = this._.union(paq.DEFAULT_QUESTIONS, prompts);
+
+        if (!attrs.length){
+            return;
+        }
+
+        if (this.options['load-attributes']) {
+            return;
+        }
+
+        var done = this.async();
+
+        this.prompt(prompts, function (res) {
+            var neAttributes = res.oneTimeEditable;
+            neAttributes.forEach(function (attr) {
+                this.attributes[attr].oneTimeEditable = true;
+                done();
+            }.bind(this));
+        }.bind(this));
+
+    },
     saveAttributesInFile: function () {
         if (this.options['load-attributes']) {
             return;
@@ -186,12 +267,10 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         this.write('app/models/' + this.slugifiedSingularName + '.server.model.attributes.json', JSON.stringify(this.attributes));
     },
     wrapAttributesObject: function () {
-        function isPrivate(value) {
-            return value.private === true;
-        }
-
-        this.privateAttributes = this._.pick(this.attributes, isPrivate);
-        this.publicAttributes = this._.omit(this.attributes, isPrivate);
+        this.privateAttributes = this._.pick(this.attributes, this.isPrivateAttribute);
+        this.publicAttributes = this._.omit(this.attributes, this.isPrivateAttribute);
+        this.nonEditableAttributes = this._.pick(this.attributes, this.isNonEditableAttribute);
+        this.oneTimeEditableAttributes = this._.pick(this.attributes, this.isOneTimeEditableAttribute);
     },
     parseThinkyAttributes: function () {
         var _this = this,

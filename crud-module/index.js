@@ -115,6 +115,8 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         }.bind(this));
     },
     askForAttributeProperties: function () {
+        var attributesSchemas = this.attributesSchemas = this._.map(paq.DEFAULT_QUESTIONS, this._.clone);
+
         if (this.options['load-attributes']) {
             return;
         }
@@ -128,7 +130,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
 
         async.eachSeries(Object.keys(attributes),
             function (attributeName, next) {
-                paq.promptQuestions(attributeName, prompt, paq.DEFAULT_QUESTIONS, function (err, attributeDefinition, attributeResponseValidations) {
+                paq.promptQuestions(attributeName, prompt, attributesSchemas, function (err, attributeDefinition, attributeResponseValidations) {
                     if (err) {
                         throw new Error(err);
                     }
@@ -145,6 +147,9 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         );
     },
     defineAttributeManipulationMethods : function() {
+        var root = this,
+            _ = this._;
+
         this.isPrivateAttribute = function isPrivate(value) {
             return value.private === true;
         };
@@ -156,6 +161,67 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         this.isOneTimeEditableAttribute = function isOneTimeEditable(value){
             return value.oneTimeEditable;
         };
+
+        this.toStringExtended = function toStringExtended(text) {
+            try {
+                var fn = eval(text); //jshint ignore:line
+                if (typeof fn === 'function') {
+                    return text;
+                } else {
+                    return JSON.stringify(text);
+                }
+            } catch (e) {
+                return JSON.stringify(text);
+            }
+        };
+
+        this.parseThinkyAttribute = function parseDescription(attributeDescription, attributesSchemas) {
+            var parsedAttributeDescription = [],
+                propertySchema,
+                possiblePropertySchemas,
+                parsed;
+
+            _.forIn(attributeDescription, function (value, key) {
+
+                //find the property schema of this property
+                possiblePropertySchemas = _.filter(attributesSchemas, function (currentPropertySchema) {
+                    if (currentPropertySchema.name !== key)
+                        return false;
+
+                    if (currentPropertySchema.prerequisites) {
+                        return paq.validatePrerequisites(attributeDescription, currentPropertySchema.prerequisites);
+                    } else return true;
+                });
+
+                propertySchema = _.find(possiblePropertySchemas, function (value) {
+                    return value.prerequisites;
+                });
+
+                if (!propertySchema)
+                    propertySchema = _.last(possiblePropertySchemas);
+
+                if (propertySchema && propertySchema.thinky && propertySchema.thinky.display === false)
+                    return;
+
+                if (propertySchema && propertySchema.thinky && typeof propertySchema.thinky.parse === 'function') {
+                    parsed = propertySchema.thinky.parse(value, attributeDescription);
+                    if (typeof parsed !== 'string')
+                        throw new Error('Invalid Thinky parse function for property "' + key + '".');
+                    parsedAttributeDescription.push(parsed);
+                } else {
+                    if (typeof value === 'boolean') {
+                        if (value) {
+                            parsedAttributeDescription.push(key + '()');
+                        }
+                    } else {
+                        parsedAttributeDescription.push(key + '(' + root.toStringExtended(value) + ')');
+                    }
+                }
+            });
+
+            return parsedAttributeDescription;
+        };
+
     },
     askForPrivateAttributes: function () {
         var prompts = [{
@@ -168,7 +234,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             }
         }];
 
-        paq.DEFAULT_QUESTIONS = this._.union(paq.DEFAULT_QUESTIONS, prompts);
+        this.attributesSchemas = this._.union(this.attributesSchemas, prompts);
 
         if (this.options['load-attributes']) {
             return;
@@ -186,7 +252,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
 
     },
     askForNonEditableAttributes: function() {
-        var attrs = Object.keys(this._.omit(this.attributes, this.isPrivateAttribute));
+        var attrs = this._(this.attributes).omit(this.isPrivateAttribute).keys().value();
         var prompts = [{
             name: 'nonEditable',
             type: 'checkbox',
@@ -197,7 +263,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             }
         }];
 
-        paq.DEFAULT_QUESTIONS = this._.union(paq.DEFAULT_QUESTIONS, prompts);
+        this.attributesSchemas = this._.union(this.attributesSchemas, prompts);
 
         if (!attrs.length){
             return;
@@ -221,7 +287,12 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
     askOneTimeEditableAttributes: function() {
         var _ = this._;
 
-        var attrs = Object.keys(_.omit(_.omit(this.attributes, this.isPrivateAttribute), this.isNonEditableAttribute));
+        var attrs = _(this.attributes)
+            .omit(this.isPrivateAttribute)
+            .omit(this.isNonEditableAttribute)
+            .keys()
+            .value();
+
         var prompts = [{
             name: 'oneTimeEditable',
             type: 'checkbox',
@@ -232,7 +303,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             }
         }];
 
-        paq.DEFAULT_QUESTIONS = this._.union(paq.DEFAULT_QUESTIONS, prompts);
+        this.attributesSchemas = this._.union(this.attributesSchemas, prompts);
 
         if (!attrs.length){
             return;
@@ -276,71 +347,10 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         var _this = this,
             _ = this._;
 
-        //
-        function getParsedString(text) {
-            try {
-                var fn = eval(text); //jshint ignore:line
-                if (typeof fn === 'function') {
-                    return text;
-                } else {
-                    return JSON.stringify(text);
-                }
-            } catch (e) {
-                return JSON.stringify(text);
-            }
-        }
-
         this.thinkyParsedAttributes = {};
 
-        function parseDescription(attributeDescription) {
-            var parsedAttributeDescription = [],
-                propertySchema,
-                possiblePropertySchemas,
-                parsed;
-
-            _.forIn(attributeDescription, function (value, key) {
-
-                //find the property schema of this attribute
-                possiblePropertySchemas = _.filter(paq.DEFAULT_QUESTIONS, function (currentPropertySchema) {
-                    if (currentPropertySchema.name !== key)
-                        return false;
-
-                    if (currentPropertySchema.prerequisites) {
-                        return paq.validatePrerequisites(attributeDescription, currentPropertySchema.prerequisites);
-                    } else return true;
-                });
-
-                propertySchema = _.find(possiblePropertySchemas, function (value) {
-                    return value.prerequisites;
-                });
-
-                if (!propertySchema)
-                    propertySchema = _.last(possiblePropertySchemas);
-
-                if (propertySchema && propertySchema.thinky && propertySchema.thinky.display === false)
-                    return;
-
-                if (propertySchema && propertySchema.thinky && typeof propertySchema.thinky.parse === 'function') {
-                    parsed = propertySchema.thinky.parse(value, attributeDescription);
-                    if (typeof parsed !== 'string')
-                        throw new Error('Invalid Thinky parse function for property "' + key + '".');
-                    parsedAttributeDescription.push(parsed);
-                } else {
-                    if (typeof value === 'boolean') {
-                        if (value) {
-                            parsedAttributeDescription.push(key + '()');
-                        }
-                    } else {
-                        parsedAttributeDescription.push(key + '(' + getParsedString(value) + ')');
-                    }
-                }
-            });
-
-            return parsedAttributeDescription;
-        }
-
         _.forIn(this.attributes, function (attributeDescription, attributeName) {
-            _this.thinkyParsedAttributes[attributeName] = parseDescription(attributeDescription);
+            _this.thinkyParsedAttributes[attributeName] = _this.parseThinkyAttribute(attributeDescription, _this.attributesSchemas);
         });
     },
     renderModule: function () {

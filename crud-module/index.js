@@ -246,8 +246,8 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             var privateAttributes = res.private;
             privateAttributes.forEach(function (attr) {
                 this.attributes[attr].private = true;
-                done();
             }.bind(this));
+			done();
         }.bind(this));
 
     },
@@ -279,8 +279,9 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             var neAttributes = res.nonEditable;
             neAttributes.forEach(function (attr) {
                 this.attributes[attr].nonEditable = true;
-                done();
             }.bind(this));
+			done();
+
         }.bind(this));
 
     },
@@ -319,10 +320,47 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             var neAttributes = res.oneTimeEditable;
             neAttributes.forEach(function (attr) {
                 this.attributes[attr].oneTimeEditable = true;
-                done();
             }.bind(this));
+			done();
         }.bind(this));
 
+    },
+    askForCreatorProperty : function(){
+
+		console.log('askForCreatorProperty');
+
+        this.attributesSchemas.push({
+            name: 'model',
+            thinky : {
+                display: false
+            }
+		});
+
+		if (this.options['load-attributes']) {
+            return;
+        }
+
+        var done = this.async(),
+            prompts = [
+                {
+                    name: 'creator',
+                    message: 'Do you want to have a "creator" user property?',
+                    type: 'confirm',
+                    default: 'false'
+                }
+            ];
+
+        this.prompt(prompts, function callback(properties){
+            if (properties.creator){
+                this.attributes.creatorId = {
+                    type : 'string',
+                    required: true,
+                    model: 'user',
+					private : true
+                };
+            }
+			done();
+        }.bind(this));
     },
     saveAttributesInFile: function () {
         if (this.options['load-attributes']) {

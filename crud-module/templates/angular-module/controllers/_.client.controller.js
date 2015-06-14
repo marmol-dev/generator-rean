@@ -3,7 +3,8 @@
 // <%= humanizedPluralName %> controller
 angular.module('<%= slugifiedPluralName %>').controller('<%= classifiedPluralName %>Controller', ['$scope', '$stateParams', '$location', 'Authentication', '<%= classifiedPluralName %>',
 	function($scope, $stateParams, $location, Authentication, <%= classifiedPluralName %>) {
-		$scope.authentication = Authentication;
+		<% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %>
+		$scope.authentication = Authentication; <% } %>
 
 		$scope.build = function(){
 			$scope.<%= camelizedSingularName %> = new <%= classifiedPluralName %> ({ <% for(var attrName in publicAttributes) { var attr =  publicAttributes[attrName]; if(!isNonEditableAttribute(attr)) { %>

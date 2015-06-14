@@ -25,8 +25,7 @@ var <%= classifiedSingularName %> = thinky.createModel('<%= camelizedPluralName 
 
     next();
 });
-
-//TODO:
-//<%= classifiedSingularName %>.belongsTo(User, 'user', 'userId', 'id');
+<% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %>
+<%= classifiedSingularName %>.belongsTo(User, 'creator', 'creatorId', 'id'); <% } %>
 
 module.exports = <%= classifiedSingularName %>;

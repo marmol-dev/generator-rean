@@ -11,8 +11,8 @@ module.exports = function(app) {
 
 	app.route('/<%= slugifiedPluralName %>/:<%= camelizedSingularName %>Id')
 		.get(<%= camelizedPluralName %>.read)
-		.put(users.requiresLogin, <%= camelizedPluralName %>.hasAuthorization, <%= camelizedPluralName %>.cleanInput, <%= camelizedPluralName %>.update)
-		.delete(users.requiresLogin, <%= camelizedPluralName %>.hasAuthorization, <%= camelizedPluralName %>.delete);
+		.put(users.requiresLogin, <% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %><%= camelizedPluralName %>.hasAuthorization, <% } %> <%= camelizedPluralName %>.cleanInput, <%= camelizedPluralName %>.update)
+		.delete(users.requiresLogin, <% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %><%= camelizedPluralName %>.hasAuthorization, <% } %> <%= camelizedPluralName %>.delete);
 
 	// Finish by binding the <%= humanizedSingularName %> middleware
 	app.param('<%= camelizedSingularName %>Id', <%= camelizedPluralName %>.<%= camelizedSingularName %>ByID);

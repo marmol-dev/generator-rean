@@ -10,7 +10,8 @@ var mongoose = require('mongoose'),
         r = require('thinky')().r;
 
 exports.cleanInput = function(req, res, next) {
-    delete req.body.created;
+	//remove "non-editable" attributes from req.body  <% for (var name in nonEditableAttributes) { %>
+	delete req.body.<%= name %>; //set the value here <% } %>
     next();
 };
 
@@ -19,10 +20,9 @@ exports.cleanInput = function(req, res, next) {
  */
 exports.create = function(req, res) {
 	var <%= camelizedSingularName %> = new <%= classifiedSingularName %>(req.body);
-	//<%= camelizedSingularName %>.userId = req.user.id;
 	
-	<% for (var aN in nonEditableAttributes) { %>
-	<%= camelizedSingularName %>.<%= aN %> = undefined;//input your value here <% } %>
+	<% if (attributes.creatorId && attributes.creatorId.model === 'user') { %>//Assign the current user to creator
+	<%= camelizedSingularName %>.creatorId = req.user.id; <%} %>
 
 	<%= camelizedSingularName %>.save(function(err) {
 		if (err) {
@@ -39,20 +39,22 @@ exports.create = function(req, res) {
  * Show the current <%= humanizedSingularName %>
  */
 exports.read = function(req, res) {
-	res.jsonp(req.<%= camelizedSingularName %>);
+	return res.jsonp(_.chain(req.<%= camelizedSingularName %>)
+		 .clone()
+		 .omit(<%= JSON.stringify(Object.keys(privateAttributes)) %>)
+		 .value());
 };
 
 /**
  * Update a <%= humanizedSingularName %>
  */
 exports.update = function(req, res) {
-	var <%= camelizedSingularName %> = req.<%= camelizedSingularName %> ;
+	var <%= camelizedSingularName %> = req.<%= camelizedSingularName %>;
 
-	<%= camelizedSingularName %> = _.extend(<%= camelizedSingularName %> , req.body);
-    //<%= camelizedSingularName %>.userId = req.<%= camelizedSingularName %>.user.id;
-	<% for (var aN in nonEditableAttributes) { %>
-	<%= camelizedSingularName %>.<%= aN %> = undefined; //set the value here <% } %> <% for (var aN in oneTimeEditableAttributes) { %>
-	<%= camelizedSingularName %>.<%= aN %> = undefined; <% } %>
+	//Remove "one-time-editable" attributes <% for (var name in oneTimeEditableAttributes) { %>
+	delete req.body.<%= name %>; <% } %>
+
+	<%= camelizedSingularName %>.merge(req.body);
 
 	<%= camelizedSingularName %>.save(function(err) {
 		if (err) {
@@ -87,13 +89,13 @@ exports.delete = function(req, res) {
  */
 exports.list = function(req, res) {
     <%= classifiedSingularName %>.orderBy(r.desc('create'))
-        /*.getJoin({
-            user: {
+        <% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %>.getJoin({
+            creator: {
                 _apply : function(user){
                     return user.pluck('id', 'firstName', 'lastName', 'displayName', 'username');
                 }
             }
-        })*/
+        })<% } %>
 		.without(<%= JSON.stringify(Object.keys(privateAttributes)) %>)
         .execute()
 		.then(function(cursor){
@@ -114,15 +116,14 @@ exports.list = function(req, res) {
  */
 exports.<%= camelizedSingularName %>ByID = function(req, res, next, id) {
     <%= classifiedSingularName %>.get(id)
-        /*.getJoin({
-            user: {
+        <% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %>.getJoin({
+            creator: {
                 _apply : function(user){
                     return user.pluck('id', 'firstName', 'lastName', 'displayName', 'username');
                 }
             }
-        })*/
-		.without(<%= JSON.stringify(Object.keys(privateAttributes)) %>)
-        .execute()
+        }) <% } %>
+        .run()
         .then(function(<%= camelizedSingularName %>) {
             req.<%= camelizedSingularName %> = <%= camelizedSingularName %>;
             next();
@@ -132,12 +133,14 @@ exports.<%= camelizedSingularName %>ByID = function(req, res, next, id) {
         });
 };
 
+<% if (attributes.creatorId && attributes.creatorId.model === 'user'){ %>
 /**
  * <%= humanizedSingularName %> authorization middleware
  */
 exports.hasAuthorization = function(req, res, next) {
-	if (req.<%= camelizedSingularName %>.user.id !== req.user.id) {
+	if (req.<%= camelizedSingularName %>.creator.id !== req.user.id) {
 		return res.status(403).send('User is not authorized');
 	}
 	next();
 };
+<% } %>

@@ -45,6 +45,9 @@ var User = thinky.createModel('users', {
     enforce_extra: 'remove'
 });
 
+User.ensureIndex('username');
+User.ensureIndex('email');
+
 /**
  * Hook a pre save method to hash the password
  */

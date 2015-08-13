@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 var _ = require('lodash'),
-    mongoose = require('mongoose'),
     User = require('../../models/user.server.model');
 
 /**

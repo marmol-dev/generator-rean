@@ -3,9 +3,7 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-	Schema = mongoose.Schema,
-    config = require('../../config/config'),
+var config = require('../../config/config'),
     thinky = require('thinky')(config.db),
     r = thinky.r,
     type = thinky.type,

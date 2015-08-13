@@ -5,7 +5,6 @@
  */
 var _ = require('lodash'),
     errorHandler = require('../errors.server.controller'),
-    mongoose = require('mongoose'),
     passport = require('passport'),
     User = require('../../models/user.server.model'),
     r = require('thinky')().r;
@@ -194,7 +193,7 @@ exports.saveOAuthUserProfile = function (req, providerUserProfile, done) {
             if (!user.additionalProvidersData) user.additionalProvidersData = {};
             user.additionalProvidersData[providerUserProfile.provider] = providerUserProfile.providerData;
 
-            // Then tell mongoose that we've updated the additionalProvidersData field
+            // Then tell thinky that we've updated the additionalProvidersData field
             //user.markModified('additionalProvidersData');
 
             // And save the user
@@ -219,7 +218,7 @@ exports.removeOAuthProvider = function (req, res, next) {
         if (user.additionalProvidersData[provider]) {
             delete user.additionalProvidersData[provider];
 
-            // Then tell mongoose that we've updated the additionalProvidersData field
+            // Then tell thinky that we've updated the additionalProvidersData field
             //user.markModified('additionalProvidersData');
         }
 

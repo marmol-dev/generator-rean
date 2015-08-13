@@ -3,8 +3,7 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-    errorHandler = require('./errors.server.controller'),
+var errorHandler = require('./errors.server.controller'),
     Article = require('../models/article.server.model'),
     _ = require('lodash'),
     r = require('thinky')().r;

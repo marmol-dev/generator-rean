@@ -42,21 +42,21 @@ exports.signup = function (req, res) {
     // Add missing user fields
     user.provider = 'local';
     user.displayName = user.firstName + ' ' + user.lastName;
+    
+    var sameCredentialsError = new Error('There is another user with the same email or username');
 
     // Then save the user
-    User.filter(
-            r.row('username').eq(req.body.username).or(
-                r.row('email').eq(req.body.email)
-            )
-        )
-        .limit(1)
+    User.getByUsername(req.body.username)
         .run()
-        .then(function (users) {
-            if (users.length > 0) {
-                throw new Error('There is another user with the same email or username');
-            } else {
-                return null;
-            }
+        .then(function (user) {
+            throw sameCredentialsError;
+        }, function(err){
+            return User.getByEmail(req.body.email).run()
+                .then(function(){
+                   throw sameCredentialsError; 
+                }, function(err){
+                   return; 
+                });
         })
         .then(function () {
             return user.save();

@@ -94,26 +94,28 @@ User.defineStatic('findUniqueUsername', function (username, suffix, callback) {
     var _this = this;
     var possibleUsername = username + (suffix || '');
 
-    this.getByUsername(possibleUsername)
+    return this.getByUsername(possibleUsername)
         .run()
         .then(function (user) {
-            if (!user) {
-                callback(possibleUsername);
-            } else {
-                return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
-            }
+            return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
         }).error(function (err) {
-            callback(null);
+            if (typeof callback === 'function'){
+                callback(possibleUsername);
+            }
+            return possibleUsername;
         });
 });
 
 User.defineStatic('getByUsername', function (username) {
-    return this.filter({
-            username: username
-        })
+    return this.getAll(username, {index : 'username'})
         .limit(1)
-        .nth(0)
-        .default(null);
+        .nth(0);
+});
+
+User.defineStatic('getByEmail', function(email){
+    return this.getAll(email, {index : 'email'})
+        .limit(1)
+        .nth(0);
 });
 
 module.exports = User;

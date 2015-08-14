@@ -32,11 +32,7 @@ exports.forgot = function (req, res, next) {
                     .without(['salt', 'password'])
                     .run()
                     .then(function (user) {
-                        if (!user) {
-                            return res.status(400).send({
-                                message: 'No account with that username has been found'
-                            });
-                        } else if (user.provider !== 'local') {
+                        if (user.provider !== 'local') {
                             return res.status(400).send({
                                 message: 'It seems like you signed up using your ' + user.provider + ' account'
                             });

@@ -19,12 +19,6 @@ module.exports = function () {
                     .run()
                     .then(function (user) {
 
-                        if (!user) {
-                            return done(null, false, {
-                                message: 'Unknown user or invalid password'
-                            });
-                        }
-
                         if (!user.authenticate(password)) {
                             return done(null, false, {
                                 message: 'Unknown user or invalid password'

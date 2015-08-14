@@ -30,15 +30,15 @@ var MeanGenerator = yeoman.generators.Base.extend({
 		var prompts = [{
 			name: 'appName',
 			message: 'What would you like to call your application?',
-			default: 'MEAN'
+			default: 'REAN'
 		}, {
 			name: 'appDescription',
 			message: 'How would you describe your application?',
-			default: 'Full-Stack JavaScript with MongoDB, Express, AngularJS, and Node.js'
+			default: 'Full-Stack JavaScript with RethinkDB, Express, AngularJS, and Node.js'
 		}, {
 			name: 'appKeywords',
 			message: 'How would you describe your application in comma seperated key words?',
-			default: 'MongoDB, Express, AngularJS, Node.js'
+			default: 'RethinkDB, Express, AngularJS, Node.js'
 		}, {
 			name: 'appAuthor',
 			message: 'What is your company/author name?'

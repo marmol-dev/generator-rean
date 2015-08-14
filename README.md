@@ -1,16 +1,11 @@
-[![REAN Logo](http://rean.org/img/logo-small.png)](http://rean.org/)
-
-[![Build Status](https://travis-ci.org/rean/generator-rean.svg?branch=master)](https://travis-ci.org/rean/generator-rean)
-[![Dependencies Status](https://david-dm.org/rean/generator-rean.svg)](https://david-dm.org/rean/generator-rean)
-
-REAN is a full-stack JavaScript open-source solution, which provides a solid starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. The idea is to solve the common issues with connecting those frameworks, build a robust framework to support daily development needs, and help developers use better practices while working with popular JavaScript components.
+REAN is a full-stack JavaScript open-source solution, which provides a solid starting point for [RethinkDB](http://www.rethinkdb.com/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. The idea is to solve the common issues with connecting those frameworks, build a robust framework to support daily development needs, and help developers use better practices while working with popular JavaScript components.
 ## Overview
 
-One of the most frequently asked features from MEAN users is a way to scaffold their applications. As we looked for a way to help the community build and deploy production level MEAN applications, we decided to go with a [Yeoman](http://yeoman.io/index.html) generator. Yeoman generators provides a powerful, easy to maintain, and open solution for scaffolding applications.
+One of the most frequently asked features from REAN users is a way to scaffold their applications. As we looked for a way to help the community build and deploy production level REAN applications, we decided to go with a [Yeoman](http://yeoman.io/index.html) generator. Yeoman generators provides a powerful, easy to maintain, and open solution for scaffolding applications.
 
 
 
-So, we set out to work on the features we thought every developer needs, and we are proud to present the official REAN Yeoman generator. It includes a set of simple tools you can use to make your MEAN application development easier and way more fun.
+So, we set out to work on the features we thought every developer needs, and we are proud to present the official REAN Yeoman generator. It includes a set of simple tools you can use to make your REAN application development easier and way more fun.
 
 
 
@@ -62,14 +57,14 @@ Available generators:
 
 ## Application Generator
 
-The application generator will help you create a fresh copy of a REAN application in your working folder. To create your MEAN application, navigate to a new project folder, and then use *yo* to generate your application:
+The application generator will help you create a fresh copy of a REAN application in your working folder. To create your REAN application, navigate to a new project folder, and then use *yo* to generate your application:
 
 
 ```
 $ yo rean
 ```
 
-The generator will ask you a few questions about your new application and will generate it for you. When the installation process is over, you will be able to use grunt to run your new MEAN application:
+The generator will ask you a few questions about your new application and will generate it for you. When the installation process is over, you will be able to use grunt to run your new REAN application:
 
 
 ```
@@ -206,7 +201,7 @@ The sub-generator will ask you for the module name under which you would like to
 
 ## AngularJS Test Sub-Generator
 
-Your MEAN application comes pre-bundled with the Karma test runner and Jasmine testing framework. To test your AngularJS controllers you’ll need to create a test file, which Karma will later use to run the tests. For this purpose we provided you with the AngularJS test sub-generator. Creating a new AngularJS test is effortless, just execute this command:
+Your REAN application comes pre-bundled with the Karma test runner and Jasmine testing framework. To test your AngularJS controllers you’ll need to create a test file, which Karma will later use to run the tests. For this purpose we provided you with the AngularJS test sub-generator. Creating a new AngularJS test is effortless, just execute this command:
 
 
 ```
@@ -263,7 +258,7 @@ This will create a new empty route file in the **app/routes** folder.
 
 ## Express Test Sub-Generator
 
-Your MEAN application comes pre-bundled with the Mocha testing framework. To test your Express models you’ll need to create a new test file, which Mocha will use while running tests. For this purpose we provided you with the Express test sub-generator. Creating a new Express test is easy, just execute this command:
+Your REAN application comes pre-bundled with the Mocha testing framework. To test your Express models you’ll need to create a new test file, which Mocha will use while running tests. For this purpose we provided you with the Express test sub-generator. Creating a new Express test is easy, just execute this command:
 
 
 ```

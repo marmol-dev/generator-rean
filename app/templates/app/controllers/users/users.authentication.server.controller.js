@@ -7,7 +7,7 @@ var _ = require('lodash'),
     errorHandler = require('../errors.server.controller'),
     passport = require('passport'),
     User = require('../../models/user.server.model'),
-    r = require('thinky')().r;
+    r = require('../../../config/db').getThinky().r;
 
 
 //check security

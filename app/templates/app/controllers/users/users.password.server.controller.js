@@ -11,7 +11,7 @@ var _ = require('lodash'),
     nodemailer = require('nodemailer'),
     async = require('async'),
     crypto = require('crypto'),
-    r = require('thinky')().r;
+    r = require('../../../config/db').getThinky().r;
 
 /**
  * Forgot for reset password (forgot POST)

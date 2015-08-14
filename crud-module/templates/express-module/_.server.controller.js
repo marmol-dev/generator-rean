@@ -6,7 +6,7 @@
 var errorHandler = require('./errors.server.controller'),
 	<%= classifiedSingularName %> = require('../models/<%= slugifiedSingularName %>.server.model'),
 	_ = require('lodash'),
-        r = require('thinky')().r;
+        r = require('../../confib/db').getThinky().r;
 
 exports.cleanInput = function(req, res, next) {
 	//remove "non-editable" attributes from req.body  <% for (var name in nonEditableAttributes) { %>

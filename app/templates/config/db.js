@@ -53,3 +53,12 @@ module.exports.start = function () {
                 });
         });
 };
+
+var thinky = null;
+module.exports.getThinky = function(){
+    if (!thinky){
+        thinky = require('thinky')(config.db);
+    }
+    
+    return thinky;
+};

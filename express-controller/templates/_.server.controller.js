@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 var config = require('../../config'),
-    thinky = require('thinky')(config.db),
+    thinky = require('../../config/db').getThinky(),
     r = thinky.r,
     _ = require('lodash');
 

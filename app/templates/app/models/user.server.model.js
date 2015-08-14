@@ -5,7 +5,7 @@
  */
 var crypto = require('crypto'),
     config = require('../../config/config'),
-    thinky = require('thinky')(config.db),
+    thinky = require('../../config/db').getThinky(),
     r = thinky.r,
     type = thinky.type;
 

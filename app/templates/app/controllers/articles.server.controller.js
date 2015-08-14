@@ -6,7 +6,7 @@
 var errorHandler = require('./errors.server.controller'),
     Article = require('../models/article.server.model'),
     _ = require('lodash'),
-    r = require('thinky')().r;
+    r = require('../../config/db').getThinky().r;
 
 exports.cleanInput = function(req, res, next){
     delete req.body.created;

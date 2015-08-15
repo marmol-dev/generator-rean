@@ -325,7 +325,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
         }.bind(this));
 
     },
-    askForCreatorProperty : function(){
+    /*askForCreatorProperty : function(){
 
 		console.log('askForCreatorProperty');
 
@@ -361,7 +361,7 @@ var ModuleGenerator = yeoman.generators.NamedBase.extend({
             }
 			done();
         }.bind(this));
-    },
+    },*/
     saveAttributesInFile: function () {
         if (this.options['load-attributes']) {
             return;

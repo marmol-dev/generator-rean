@@ -38,7 +38,9 @@ var User = thinky.createModel('users', {
     additionalProvidersData: type.object(),
     roles: type.array().schema(type.string().enum('user', 'admin')).default(['user']).required(),
     updated: type.date().optional().allowNull(),
-    created: type.date().optional().allowNull().default(Date.now),
+    created: type.date().optional().allowNull().default(function(){
+        return new Date();
+    }),
     resetPasswordToken: type.string(),
     resetPasswordExpires: type.date()
 }, {

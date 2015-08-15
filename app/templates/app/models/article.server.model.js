@@ -14,18 +14,15 @@ var config = require('../../config/config'),
  */
 
 var Article = thinky.createModel('articles', {
-    created: type.date().optional().default(Date.now),
+    created: type.date().optional().default(function(){
+        return new Date();
+    }),
     title: type.string().required(),
     content: type.string().required(),
     userId: type.string().required(),
     id: type.string() //do not put here .required()
 }, {
     enforce_extra : 'remove'
-});
-
-Article.pre('save', function(next){
-    this.created = new Date(this.created);
-    next();
 });
 
 Article.belongsTo(User, 'user', 'userId', 'id');

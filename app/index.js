@@ -105,6 +105,7 @@ var MeanGenerator = yeoman.generators.Base.extend({
 		// Copy application folder
 		this.mkdir('app');
 		this.mkdir('app/controllers');
+		this.mkdir('app/services');
 		this.mkdir('app/models');
 		this.mkdir('app/routes');
 		this.mkdir('app/tests');
